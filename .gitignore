@@ -1,3 +1,6 @@
+# -----------------------------
+# C++ / C Standard (Tua base)
+# -----------------------------
 # Prerequisites
 *.d
 
@@ -13,9 +16,11 @@
 
 # Linker files
 *.ilk
+*.map
 
 # Debugger Files
 *.pdb
+*.idb
 
 # Compiled Dynamic libraries
 *.so
@@ -37,5 +42,78 @@
 *.out
 *.app
 
-# debug information files
+# Debug information files
 *.dwo
+
+# -----------------------------
+# PlatformIO / ESP32 (CRUCIALE)
+# -----------------------------
+# La cartella di build (enorme e inutile su git)
+.pio/
+.pioenvs/
+
+# File di configurazione IDE generati
+.clang_complete
+.gcc-flags.json
+
+# -----------------------------
+# IDE & Editor (VS Code)
+# -----------------------------
+.vscode/
+*.code-workspace
+.history/
+.ionide/
+
+# -----------------------------
+# MATLAB / Simulink (Model-Based Design)
+# -----------------------------
+# Autosaves e Backup
+*.asv
+*.autosave
+*.bak
+
+# Simulink Cache & Generated Code (NON committare questi!)
+slprj/
+*.slxc
+*.sldd
+*.sdi
+
+# MATLAB Compiled/Binary files
+*.mex*
+*.mlappinstall
+*.kt
+
+# Log e risultati di simulazione temporanei
+*.log
+*.jnl
+
+# -----------------------------
+# Hardware Design (KiCad / Fritzing)
+# -----------------------------
+# Backup temporanei
+fp-info-cache
+*.kicad_prl
+*.sch-bak
+*.kicad_pcb-bak
+
+# -----------------------------
+# OS System Files
+# -----------------------------
+# Mac
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+
+# -----------------------------
+# Logs & Temp
+# -----------------------------
+*.log
+*.tmp
+*.temp
