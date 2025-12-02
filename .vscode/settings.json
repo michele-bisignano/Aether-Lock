@@ -1,0 +1,10 @@
+{
+    "emeraldwalk.runonsave": {
+        "commands": [
+            {
+                "match": "project_config.json",
+                "cmd": "python ${workspaceFolder}/Tools/generate_config.py"
+            }
+        ]
+    }
+}
