@@ -1,0 +1,47 @@
+{
+  "_comment": "Aether-Lock Configuration. Units: SI (Meters, Kilograms, seconds, Amperes, Volts).",
+  "project_info": {
+    "name": "Aether-Lock",
+    "version": "1.0.0",
+    "description": "Active Equilibrium Control System parameters"
+  },
+
+  "physical_plant": {
+    "_description": "Estimated physics of the Angel and Coil for MATLAB simulation",
+    "mass_kg": 0.02,
+    "gravity_mss": 9.81,
+    "equilibrium_distance_m": 0.02,
+    "coil_resistance_ohm": 15.0,
+    "coil_inductance_henry": 0.01,
+    "magnetic_constant_K": 0.0001
+  },
+
+  "control_system": {
+    "_description": "PID parameters and timing for Firmware and Simulink",
+    "loop_frequency_hz": 5000,
+    "setpoint_distance_m": 0.02,
+    "pid_gains": {
+      "kp": 1000.0,
+      "ki": 50.0,
+      "kd": 25.0
+    },
+    "filter_alpha": 0.1
+  },
+
+  "hardware_mapping": {
+    "_description": "ESP32 Pinout and Electrical specs",
+    "pins": {
+      "hall_sensor_pin": 34,
+      "pwm_coil_pin": 25
+    },
+    "adc_settings": {
+      "resolution_bits": 12,
+      "reference_voltage_v": 3.3,
+      "sensor_zero_offset_v": 2.5
+    },
+    "pwm_settings": {
+      "frequency_hz": 20000,
+      "resolution_bits": 10
+    }
+  }
+}

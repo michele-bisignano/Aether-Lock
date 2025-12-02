@@ -1,13 +1,14 @@
 Aether-Lock/
-├── .gitignore                      # Git configuration: excludes build artifacts and temporary cache files
-├── LICENSE                         # MIT License: Permissive open-source license
-├── README.md                       # Project Entry Point: Overview, architecture, and build instructions
+├── .gitignore                      
+├── LICENSE                         # MIT License
+├── README.md                       
+├── project_config.json             # Centralized physics and control parameters
 │
 ├── Docs/                           # Documentation and design specifications
 │   ├── Project_Structure/
-│   │   └── repository_tree.md     # Visual representation of the project structure (This file)
+│   │   └── repository_tree.md      # Visual representation of the project structure (This file)
 │   └── Theory/
-│       └── System_Equations.md     # Mathematical modeling of the electromagnetic system
+│       └── Mathematical_Model.md   # Mathematical modeling of the problem
 │
 ├── Firmware/                       # ESP32 Embedded Code (PlatformIO Project)
 │   ├── platformio.ini              # Build Configuration: Board settings, libraries, and compiler flags
