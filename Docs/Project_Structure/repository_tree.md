@@ -8,10 +8,17 @@ Aether-Lock/
 │   ├── Project_Structure/
 │   │   └── repository_tree.md      # Visual representation of the project structure (This file)
 │   └── Theory/
+│       ├── System_Parameters.md    # Table with all params
 │       └── Mathematical_Model.md   # Mathematical modeling of the problem
+│
+├── Tools/                          # Automation scripts and build utilities
+│   └── generate_config.py          # Propagates JSON config to C++, MATLAB and md
 │
 ├── Firmware/                       # ESP32 Embedded Code (PlatformIO Project)
 │   ├── platformio.ini              # Build Configuration: Board settings, libraries, and compiler flags
+│   ├── include/
+│   │   └── Config.h                # Costants
+│   │
 │   ├── src/
 │   │   └── main.cpp                # Application Entry Point: Task scheduling and Setup
 │   │
@@ -39,6 +46,6 @@ Aether-Lock/
 │
 └── Simulation/                     # Model-Based Design (Digital Twin)
     ├── MATLAB/
-    │   └── step_response_analysis.m # Script for analyzing system stability and plotting results
+    │   └── load_params.m # Script for analyzing system stability and plotting results
     └── Simulink/
         └── MagLev_ClosedLoop.slx   # Simulink model for tuning PID gains and simulating physics

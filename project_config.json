@@ -8,7 +8,7 @@
 
   "physical_plant": {
     "_description": "Estimated physics of the Angel and Coil for MATLAB simulation",
-    "mass_kg": 0.02,
+    "mass_kg": 0.016,
     "gravity_mss": 9.81,
     "equilibrium_distance_m": 0.02,
     "coil_resistance_ohm": 15.0,
