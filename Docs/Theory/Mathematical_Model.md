@@ -50,7 +50,7 @@ Where:
 
 For a solenoid of Length $L$, Radius $R$, and Total Turns $N$, the field gradient along the central axis at distance $x$ from the face is:
 
-$$ \frac{dB_x}{dx} = - \frac{d}{dx} \left\{\frac{\mu_0 n i}{2} \left[ \frac{L/2 + x}{\sqrt{R^2 + (L/2+x)^2}} - \frac{x - L/2}{\sqrt{R^2 + (x - L/2)^2}} \right] \right\} $$
+$$ \frac{\mathrm{d}B_x}{\mathrm{d}x} = - \frac{\mathrm{d}}{\mathrm{d}x} \left( \frac{\mu_0 n i}{2} \left[ \frac{L/2 + x}{\sqrt{R^2 + (L/2+x)^2}} - \frac{x - L/2}{\sqrt{R^2 + (x - L/2)^2}} \right] \right) $$
 
 $$ \frac{dB_x}{dx} = -4n \mu_0 IR^2 \left[ \frac{1}{\sqrt{(4R^2 + 4x^2 + 4LX + L^2)^3}} - \frac{1}{\sqrt{(4R^2 + 4x^2 - 4LX + L^2)^3}} \right]$$
 
