@@ -13,7 +13,8 @@
     "equilibrium_distance_m": 0.02,
     "coil_resistance_ohm": 15.0,
     "coil_inductance_henry": 0.01,
-    "magnetic_constant_K": 0.0001
+    "magnetic_constant_K": 0.0001,
+    "force_exponent_n": 4
   },
 
   "control_system": {
