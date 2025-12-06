@@ -89,18 +89,25 @@ def generate_matlab_script(data):
     print(f"Generating MATLAB Script: {MATLAB_PATH}")
     
     phy = data["physical_plant"]
+    geo = phy["coil_geometry"] # Nuova sezione
     ctrl = data["control_system"]
 
     content = f"""% AUTO-GENERATED FILE from project_config.json
 % Run this script to load parameters into the workspace
 
-%% Physical Plant
+%% Physical Plant (Lumped)
 mass = {phy['mass_kg']};
 g = {phy['gravity_mss']};
 x_eq = {phy['equilibrium_distance_m']};
 R_coil = {phy['coil_resistance_ohm']};
 L_coil = {phy['coil_inductance_henry']};
-K_mag = {phy['magnetic_constant_K']};
+K_mag_approx = {phy['magnetic_constant_K']};
+
+%% Coil Geometry (For Advanced Modeling)
+geom_R1 = {geo['inner_radius_m']};
+geom_R2 = {geo['outer_radius_m']};
+geom_L = {geo['length_m']};
+geom_N = {geo['estimated_turns']};
 
 %% Control System
 Ts = 1 / {ctrl['loop_frequency_hz']}; % Sampling Time
