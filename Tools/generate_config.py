@@ -103,6 +103,9 @@ R_coil = {phy['coil_resistance_ohm']};
 L_coil = {phy['coil_inductance_henry']};
 K_mag_approx = {phy['magnetic_constant_K']};
 
+%% Magnetic Properties
+m_mag_val = {phy['magnet_dipole_moment_Am2']}; % Magnetic Dipole Moment [A*m^2]
+
 %% Coil Geometry (For Advanced Modeling)
 geom_R1 = {geo['inner_radius_m']};
 geom_R2 = {geo['outer_radius_m']};
@@ -139,6 +142,7 @@ def generate_markdown_doc(data):
 | Equilibrium Distance | `{phy['equilibrium_distance_m']}` | m | Target air gap |
 | Coil Resistance | `{phy['coil_resistance_ohm']}` | Ohm | Electromagnet DC resistance |
 | Coil Inductance | `{phy['coil_inductance_henry']}` | Henry | Electromagnet inductance |
+| Dipole Moment | `{phy['magnet_dipole_moment_Am2']}` | A·m² | Magnetic Moment (Calculated) |
 
 ## Control Settings
 | Parameter | Value | Unit | Description |

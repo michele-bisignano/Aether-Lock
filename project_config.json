@@ -8,12 +8,13 @@
 
 "physical_plant": {
     "_description": "Estimated physics including coil geometry for Biot-Savart",
-    "mass_kg": 0.016,
+    "mass_kg": 0.007,
     "gravity_mss": 9.81,
     "equilibrium_distance_m": 0.03,
     "coil_resistance_ohm": 15.0,
     "coil_inductance_henry": 0.01,
     "magnetic_constant_K": 0.0001,
+    "magnet_dipole_moment_Am2": 0.1511,
     "coil_geometry": {
       "inner_radius_m": 0.004,
       "outer_radius_m": 0.0125,

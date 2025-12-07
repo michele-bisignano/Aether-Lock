@@ -28,6 +28,27 @@ $$ \mathbf{F} = \nabla (\mathbf{m} \cdot \mathbf{B}) \implies F_x = m_{mag} \cdo
 
 Where $m_{mag}$ is the Magnetic Dipole Moment of the object.
 
+### 2.1 Magnetic Dipole Moment Identification
+
+To resolve the force equation $\mathbf{F} = \nabla (\mathbf{m} \cdot \mathbf{B})$, the magnitude of the Angel's magnetic dipole moment ($m_{mag}$) must be determined. 
+
+Instead of experimental estimation, we derive this analytically using the magnet's volume and the material's remanence ($B_r$).
+
+**Data Source:**
+For standard Sintered Neodymium-Iron-Boron (NdFeB) magnets of **Grade N35**, the physical data is referenced from *Supermagnete* [2].
+*   **Remanence ($B_r$):** $1.2 \, T$ (Tesla)
+*   **Magnet Volume ($V$):** $1.582874 \cdot 10^{-7} \, m^3$ (Measured)
+*   **Vacuum Permeability ($\mu_0$):** $4\pi \cdot 10^{-7} \, T\cdot m/A$
+
+**Calculation:**
+$$ m_{mag} = \frac{B_r \cdot V}{\mu_0} $$
+
+Substituting the numerical values:
+
+$$ m_{mag} = \frac{1.2 \cdot (1.582874 \cdot 10^{-7})}{4\pi \cdot 10^{-7}} \approx \mathbf{0.1511} \, A \cdot m^2 $$
+
+This value is used as a constant in the simulation model.
+
 ### 2.1 Ground Truth (Thick Solenoid Model)
 Since the electromagnet has a significant thickness (inner radius $R_1 \neq$ outer radius $R_2$), we use the **Finite Thick Solenoid** model derived from the Biot-Savart law.
 
@@ -111,3 +132,4 @@ The numerical values used for simulation and code generation are strictly define
 
 ## References
 1.  Fuso, F. (2015). *Campo magnetico prodotto da un solenoide*. Dipartimento di Fisica, Università di Pisa. [Online PDF](https://osiris.df.unipi.it/~fuso/dida/solenoide.pdf)
+2.  Supermagnete. *Physical magnet data*. Retrieved December 2025 from [supermagnete.de/eng/physical-magnet-data](https://www.supermagnete.de/eng/physical-magnet-data)

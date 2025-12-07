@@ -9,7 +9,7 @@
 namespace Config {
 
     namespace Plant {
-        constexpr float MASS_KG = 0.016;
+        constexpr float MASS_KG = 0.007;
         constexpr float GRAVITY = 9.81;
         constexpr float EQUILIBRIUM_DIST_M = 0.03;
         constexpr float COIL_RESISTANCE = 15.0;
