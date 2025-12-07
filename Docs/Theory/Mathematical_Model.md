@@ -49,7 +49,7 @@ $$ m_{mag} = \frac{1.2 \cdot (1.582874 \cdot 10^{-7})}{4\pi \cdot 10^{-7}} \appr
 
 This value is used as a constant in the simulation model.
 
-### 2.1 Ground Truth (Thick Solenoid Model)
+### 2.2 Ground Truth (Thick Solenoid Model)
 Since the electromagnet has a significant thickness (inner radius $R_1 \neq$ outer radius $R_2$), we use the **Finite Thick Solenoid** model derived from the Biot-Savart law.
 
 The axial magnetic field $B_x$ at distance $x$ is (Ref. [1], Eq. 12):
@@ -60,7 +60,7 @@ $$ B_x(x) = \frac{\mu_0 N i}{2L (R_2 - R_1)} \left[ (x + L/2) \ln \left( \frac{R
 
 $$ F_{magn} = -\frac{I\,N\,m_{\mathrm{mag}}\,\mu _{0}\,\left(\ln\left(\frac{R_{2}+\sqrt{{R_{2}}^2+{\left(\frac{L}{2}+z\right)}^2}}{R_{1}+\sqrt{{R_{1}}^2+{\left(\frac{L}{2}+z\right)}^2}}\right)-\ln\left(\frac{R_{2}+\sqrt{{\left(\frac{L}{2}-z\right)}^2+{R_{2}}^2}}{R_{1}+\sqrt{{\left(\frac{L}{2}-z\right)}^2+{R_{1}}^2}}\right)-\frac{\left(R_{1}+\sqrt{{\left(\frac{L}{2}-z\right)}^2+{R_{1}}^2}\right)\,\left(\frac{L-2\,z}{2\,\sqrt{{\left(\frac{L}{2}-z\right)}^2+{R_{2}}^2}\,\left(R_{1}+\sqrt{{\left(\frac{L}{2}-z\right)}^2+{R_{1}}^2}\right)}-\frac{\left(R_{2}+\sqrt{{\left(\frac{L}{2}-z\right)}^2+{R_{2}}^2}\right)\,\left(L-2\,z\right)}{2\,\sqrt{{\left(\frac{L}{2}-z\right)}^2+{R_{1}}^2}\,{\left(R_{1}+\sqrt{{\left(\frac{L}{2}-z\right)}^2+{R_{1}}^2}\right)}^2}\right)\,\left(\frac{L}{2}-z\right)}{R_{2}+\sqrt{{\left(\frac{L}{2}-z\right)}^2+{R_{2}}^2}}+\frac{\left(R_{1}+\sqrt{{R_{1}}^2+{\left(\frac{L}{2}+z\right)}^2}\right)\,\left(\frac{L}{2}+z\right)\,\left(\frac{L+2\,z}{2\,\left(R_{1}+\sqrt{{R_{1}}^2+{\left(\frac{L}{2}+z\right)}^2}\right)\,\sqrt{{R_{2}}^2+{\left(\frac{L}{2}+z\right)}^2}}-\frac{\left(R_{2}+\sqrt{{R_{2}}^2+{\left(\frac{L}{2}+z\right)}^2}\right)\,\left(L+2\,z\right)}{2\,{\left(R_{1}+\sqrt{{R_{1}}^2+{\left(\frac{L}{2}+z\right)}^2}\right)}^2\,\sqrt{{R_{1}}^2+{\left(\frac{L}{2}+z\right)}^2}}\right)}{R_{2}+\sqrt{{R_{2}}^2+{\left(\frac{L}{2}+z\right)}^2}}\right)}{2\,L\,\left(R_{1}-R_{2}\right)}$$
 
-### 2.2 Simplified Design Model
+### 2.3 Simplified Design Model
 For the control algorithm, we approximate the force behavior around the operating point using a Power Law model:
 
 $$ F_m(x, i) \approx K_{mag} \frac{i(t)}{x(t)^n} $$
