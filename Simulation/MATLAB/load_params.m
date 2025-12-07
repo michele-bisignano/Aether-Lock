@@ -5,7 +5,7 @@
 mass = 0.007;
 g = 9.81;
 x_eq = 0.03;
-R_coil = 15.0;
+R_coil = 36.0;
 L_coil = 0.01;
 K_mag_approx = 0.0001;
 
@@ -13,7 +13,7 @@ K_mag_approx = 0.0001;
 m_mag_val = 0.1511; % Magnetic Dipole Moment [A*m^2]
 
 %% Coil Geometry (For Advanced Modeling)
-geom_R1 = 0.004;
+geom_R1 = 0.002;
 geom_R2 = 0.0125;
 geom_L = 0.02;
 geom_N = 1000;
