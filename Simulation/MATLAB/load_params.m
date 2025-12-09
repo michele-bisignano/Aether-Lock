@@ -4,7 +4,7 @@
 %% Physical Plant (Lumped)
 mass = 0.007;
 g = 9.81;
-x_eq = 0.03;
+x_eq = 0.015;
 R_coil = 36.0;
 L_coil = 0.01;
 K_mag_approx = 0.0001;

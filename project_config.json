@@ -10,7 +10,7 @@
     "_description": "Estimated physics including coil geometry for Biot-Savart",
     "mass_kg": 0.007,
     "gravity_mss": 9.81,
-    "equilibrium_distance_m": 0.03,
+    "equilibrium_distance_m": 0.015,
     "coil_resistance_ohm": 36.0,
     "coil_inductance_henry": 0.01,
     "magnetic_constant_K": 0.0001,

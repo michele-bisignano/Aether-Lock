@@ -61,12 +61,15 @@ $$ B_x(x) = \frac{\mu_0 N i}{2L (R_2 - R_1)} \left[ (x + L/2) \ln \left( \frac{R
 $$ F_{magn} = -\frac{I\,N\,m_{\mathrm{mag}}\,\mu _{0}\,\left(\ln\left(\frac{R_{2}+\sqrt{{R_{2}}^2+{\left(\frac{L}{2}+z\right)}^2}}{R_{1}+\sqrt{{R_{1}}^2+{\left(\frac{L}{2}+z\right)}^2}}\right)-\ln\left(\frac{R_{2}+\sqrt{{\left(\frac{L}{2}-z\right)}^2+{R_{2}}^2}}{R_{1}+\sqrt{{\left(\frac{L}{2}-z\right)}^2+{R_{1}}^2}}\right)-\frac{\left(R_{1}+\sqrt{{\left(\frac{L}{2}-z\right)}^2+{R_{1}}^2}\right)\,\left(\frac{L-2\,z}{2\,\sqrt{{\left(\frac{L}{2}-z\right)}^2+{R_{2}}^2}\,\left(R_{1}+\sqrt{{\left(\frac{L}{2}-z\right)}^2+{R_{1}}^2}\right)}-\frac{\left(R_{2}+\sqrt{{\left(\frac{L}{2}-z\right)}^2+{R_{2}}^2}\right)\,\left(L-2\,z\right)}{2\,\sqrt{{\left(\frac{L}{2}-z\right)}^2+{R_{1}}^2}\,{\left(R_{1}+\sqrt{{\left(\frac{L}{2}-z\right)}^2+{R_{1}}^2}\right)}^2}\right)\,\left(\frac{L}{2}-z\right)}{R_{2}+\sqrt{{\left(\frac{L}{2}-z\right)}^2+{R_{2}}^2}}+\frac{\left(R_{1}+\sqrt{{R_{1}}^2+{\left(\frac{L}{2}+z\right)}^2}\right)\,\left(\frac{L}{2}+z\right)\,\left(\frac{L+2\,z}{2\,\left(R_{1}+\sqrt{{R_{1}}^2+{\left(\frac{L}{2}+z\right)}^2}\right)\,\sqrt{{R_{2}}^2+{\left(\frac{L}{2}+z\right)}^2}}-\frac{\left(R_{2}+\sqrt{{R_{2}}^2+{\left(\frac{L}{2}+z\right)}^2}\right)\,\left(L+2\,z\right)}{2\,{\left(R_{1}+\sqrt{{R_{1}}^2+{\left(\frac{L}{2}+z\right)}^2}\right)}^2\,\sqrt{{R_{1}}^2+{\left(\frac{L}{2}+z\right)}^2}}\right)}{R_{2}+\sqrt{{R_{2}}^2+{\left(\frac{L}{2}+z\right)}^2}}\right)}{2\,L\,\left(R_{1}-R_{2}\right)}$$
 
 ### 2.3 Simplified Design Model
-For the control algorithm, we approximate the force behavior around the operating point using a Power Law model:
+For the control algorithm design and real-time execution, we approximate the force behavior around the operating point using a Power Law model:
 
 $$ F_m(x, i) \approx K_{mag} \frac{i(t)}{x(t)^n} $$
 
-The parameters $K_{mag}$ and the exponent $n$ are identified by fitting this curve against the Ground Truth model in MATLAB.
+**Justification for this model structure:**
 
+1.  **Linearity with Current ($i$ vs $i^2$):** Since the target is a **Permanent Magnet** (constant dipole moment) and not a passive ferromagnetic material (variable reluctance), the force depends linearly on the magnetic field $B$, and consequently linearly on the current $i$. This allows the controller to exert both attractive and repulsive forces (bidirectional control).
+
+2.  **Effective Exponent ($n$):** While the exact analytical solution involves complex geometric terms (as seen in Sec 2.2), the local behavior of the magnetic field gradient can be accurately approximated by an inverse power law $x^{-n}$. By fitting this model to the ground truth data around the equilibrium point, the parameter $n$ captures the **effective decay rate**, implicitly compensating for the coil's finite thickness and geometric offsets without increasing computational complexity.
 ---
 
 ## 3. Equilibrium & Linearization
