@@ -14,9 +14,8 @@ else
 end
 
 % Initial parameters for geometric fitting
-I_guess = 0.2379;      % Test current for shape analysis [A]
-mu0_val = 4*pi*1e-7;
-m_mag_val = m_mag_val; % From load_params
+I_guess = 0.0794;      % Test current for shape analysis [A]
+mu_val = 4*pi*1e-7 * core_amp_factor; % Effective Permeability [H/m]
 
 %% 2. Symbolic Model (Ground Truth - Thick Solenoid)
 syms z real       % Distance
@@ -49,7 +48,7 @@ F_num_func = matlabFunction(Force_sym, 'Vars', {z, L, R1, R2, mu0, N, I, m_mag})
 % Generate data points around equilibrium using the guess current
 range = 0.005; 
 z_vector = linspace(x_eq - range, x_eq + range, 200);
-F_data_guess = abs(F_num_func(z_vector, geom_L, geom_R1, geom_R2, mu0_val, geom_N, I_guess, m_mag_val));
+F_data_guess = abs(F_num_func(z_vector, geom_L, geom_R1, geom_R2, mu_val, geom_N, I_guess, m_mag_val));
 
 % Log-Log Regression: ln(F) = ln(K_tot) - n*ln(z)
 Y = log(F_data_guess);
@@ -59,7 +58,7 @@ coeffs = polyfit(X, Y, 1);
 n_identified = -coeffs(1);           % Exponent n
 
 % Force in x_eq
-F_true_at_eq = abs(F_num_func(x_eq, geom_L, geom_R1, geom_R2, mu0_val, geom_N, I_guess, m_mag_val));
+F_true_at_eq = abs(F_num_func(x_eq, geom_L, geom_R1, geom_R2, mu_val, geom_N, I_guess, m_mag_val));
 
 % Inverse formula: K = (F * x^n) / I
 K_mag_identified = (F_true_at_eq * (x_eq^n_identified)) / I_guess;
@@ -104,7 +103,7 @@ fprintf('Unstable Pole       : +%.2f rad/s\n', lambda);
 
 %% 6. Final Verification Plot (Linear Scale)
 % Recalculate "True" force (Pisa model) using the CALCULATED equilibrium current
-F_real_final = abs(F_num_func(z_vector, geom_L, geom_R1, geom_R2, mu0_val, geom_N, I_eq_calc, m_mag_val));
+F_real_final = abs(F_num_func(z_vector, geom_L, geom_R1, geom_R2, mu_val, geom_N, I_eq_calc, m_mag_val));
 
 % Calculate "Simplified Model" force using the calculated current
 F_simple_final = (K_mag_identified * I_eq_calc) ./ (z_vector .^ n_identified);
@@ -129,7 +128,7 @@ subtitle(sprintf('Check the overlap between Blue and Red lines at the vertical b
 z_wide = linspace(0.005, 1.0, 1000); % Vector from 1mm to 1 meter
 
 % Recalculate forces over the entire range
-F_real_wide = abs(F_num_func(z_wide, geom_L, geom_R1, geom_R2, mu0_val, geom_N, I_eq_calc, m_mag_val));
+F_real_wide = abs(F_num_func(z_wide, geom_L, geom_R1, geom_R2, mu_val, geom_N, I_eq_calc, m_mag_val));
 F_simple_wide = (K_mag_identified * I_eq_calc) ./ (z_wide .^ n_identified);
 figure('Name', 'Global Force Behavior');
 

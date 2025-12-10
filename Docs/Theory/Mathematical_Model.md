@@ -30,46 +30,52 @@ Where $m_{mag}$ is the Magnetic Dipole Moment of the object.
 
 ### 2.1 Magnetic Dipole Moment Identification
 
-To resolve the force equation $\mathbf{F} = \nabla (\mathbf{m} \cdot \mathbf{B})$, the magnitude of the Angel's magnetic dipole moment ($m_{mag}$) must be determined. 
-
-Instead of experimental estimation, we derive this analytically using the magnet's volume and the material's remanence ($B_r$).
+To resolve the force equation, the magnitude of the Angel's magnetic dipole moment ($m_{mag}$) must be determined. Instead of experimental estimation, we derive this analytically using the magnet's volume and the material's remanence ($B_r$).
 
 **Data Source:**
 For standard Sintered Neodymium-Iron-Boron (NdFeB) magnets of **Grade N35**, the physical data is referenced from *Supermagnete* [2].
 *   **Remanence ($B_r$):** $1.2 \, T$ (Tesla)
-*   **Magnet Volume ($V$):** $1.582874 \cdot 10^{-7} \, m^3$ (Measured)
+*   **Magnet Volume ($V$):** $1.58 \cdot 10^{-7} \, m^3$ (Measured)
 *   **Vacuum Permeability ($\mu_0$):** $4\pi \cdot 10^{-7} \, T\cdot m/A$
 
 **Calculation:**
-$$ m_{mag} = \frac{B_r \cdot V}{\mu_0} $$
-
-Substituting the numerical values:
-
-$$ m_{mag} = \frac{1.2 \cdot (1.582874 \cdot 10^{-7})}{4\pi \cdot 10^{-7}} \approx \mathbf{0.1511} \, A \cdot m^2 $$
+$$ m_{mag} = \frac{B_r \cdot V}{\mu_0} \approx \mathbf{0.1511} \, A \cdot m^2 $$
 
 This value is used as a constant in the simulation model.
 
 ### 2.2 Ground Truth (Thick Solenoid Model)
 Since the electromagnet has a significant thickness (inner radius $R_1 \neq$ outer radius $R_2$), we use the **Finite Thick Solenoid** model derived from the Biot-Savart law.
 
-The axial magnetic field $B_x$ at distance $x$ is (Ref. [1], Eq. 12):
+The axial magnetic field $B_x$ at distance $z$ (or $x$) is (Ref. [1], Eq. 12):
 
-$$ B_x(x) = \frac{\mu_0 N i}{2L (R_2 - R_1)} \left[ (x + L/2) \ln \left( \frac{R_2 + \sqrt{R_2^2 + (x+L/2)^2}}{R_1 + \sqrt{R_1^2 + (x+L/2)^2}} \right) - (x - L/2) \ln \left( \frac{R_2 + \sqrt{R_2^2 + (x-L/2)^2}}{R_1 + \sqrt{R_1^2 + (x-L/2)^2}} \right) \right] $$
+$$ B_x(z) = \frac{\mu_0 N i}{2L (R_2 - R_1)} \left[ (z + L/2) \ln \left( \frac{R_2 + \sqrt{R_2^2 + (z+L/2)^2}}{R_1 + \sqrt{R_1^2 + (z+L/2)^2}} \right) - (z - L/2) \ln \left( \frac{R_2 + \sqrt{R_2^2 + (z-L/2)^2}}{R_1 + \sqrt{R_1^2 + (z-L/2)^2}} \right) \right] $$
 
-*Note: This complex formula is implemented in [identify_physics.m](../../Simulation/MATLAB/identify_physics.m) to perform data fitting and extract the simplified model parameters.*
+### 2.3 Core Amplification Factor ($\mu_{eff}$)
+The formula above calculates the field in a vacuum (air core). However, the P25/20 electromagnet has a ferromagnetic core which significantly amplifies the magnetic flux density. To match the real-world performance, we introduce an **Effective Permeability Factor** ($\mu_{eff}$).
 
-$$ F_{magn} = -\frac{I\,N\,m_{\mathrm{mag}}\,\mu _{0}\,\left(\ln\left(\frac{R_{2}+\sqrt{{R_{2}}^2+{\left(\frac{L}{2}+z\right)}^2}}{R_{1}+\sqrt{{R_{1}}^2+{\left(\frac{L}{2}+z\right)}^2}}\right)-\ln\left(\frac{R_{2}+\sqrt{{\left(\frac{L}{2}-z\right)}^2+{R_{2}}^2}}{R_{1}+\sqrt{{\left(\frac{L}{2}-z\right)}^2+{R_{1}}^2}}\right)-\frac{\left(R_{1}+\sqrt{{\left(\frac{L}{2}-z\right)}^2+{R_{1}}^2}\right)\,\left(\frac{L-2\,z}{2\,\sqrt{{\left(\frac{L}{2}-z\right)}^2+{R_{2}}^2}\,\left(R_{1}+\sqrt{{\left(\frac{L}{2}-z\right)}^2+{R_{1}}^2}\right)}-\frac{\left(R_{2}+\sqrt{{\left(\frac{L}{2}-z\right)}^2+{R_{2}}^2}\right)\,\left(L-2\,z\right)}{2\,\sqrt{{\left(\frac{L}{2}-z\right)}^2+{R_{1}}^2}\,{\left(R_{1}+\sqrt{{\left(\frac{L}{2}-z\right)}^2+{R_{1}}^2}\right)}^2}\right)\,\left(\frac{L}{2}-z\right)}{R_{2}+\sqrt{{\left(\frac{L}{2}-z\right)}^2+{R_{2}}^2}}+\frac{\left(R_{1}+\sqrt{{R_{1}}^2+{\left(\frac{L}{2}+z\right)}^2}\right)\,\left(\frac{L}{2}+z\right)\,\left(\frac{L+2\,z}{2\,\left(R_{1}+\sqrt{{R_{1}}^2+{\left(\frac{L}{2}+z\right)}^2}\right)\,\sqrt{{R_{2}}^2+{\left(\frac{L}{2}+z\right)}^2}}-\frac{\left(R_{2}+\sqrt{{R_{2}}^2+{\left(\frac{L}{2}+z\right)}^2}\right)\,\left(L+2\,z\right)}{2\,{\left(R_{1}+\sqrt{{R_{1}}^2+{\left(\frac{L}{2}+z\right)}^2}\right)}^2\,\sqrt{{R_{1}}^2+{\left(\frac{L}{2}+z\right)}^2}}\right)}{R_{2}+\sqrt{{R_{2}}^2+{\left(\frac{L}{2}+z\right)}^2}}\right)}{2\,L\,\left(R_{1}-R_{2}\right)}$$
+**Estimation via Reverse Engineering:**
+According to the datasheet, the holding force at contact is $F_{hold} \approx 80\,N$. Calculating the theoretical field in air ($B_{air}$) and comparing it with the field required to generate 80N ($B_{real} \approx 1.3 T$), we estimate an amplification factor:
 
-### 2.3 Simplified Design Model
-For the control algorithm design and real-time execution, we approximate the force behavior around the operating point using a Power Law model:
+$$ \mu_{eff} \approx 50 $$
+
+In the MATLAB model, the theoretical field is multiplied by this factor to obtain the true force.
+
+### 2.4 Exact Force Derivation (The Gradient)
+Combining the gradient of the amplified field with the dipole moment, the explicit force equation used for parameter identification is:
+
+$$ F_{magn} = -\mu_{eff} \cdot \frac{I\,N\,m_{\mathrm{mag}}\,\mu _{0}}{2\,L\,\left(R_{1}-R_{2}\right)} \left[\ln\left(\frac{R_{2}+\sqrt{{R_{2}}^2+{\left(\frac{L}{2}+z\right)}^2}}{R_{1}+\sqrt{{R_{1}}^2+{\left(\frac{L}{2}+z\right)}^2}}\right)-\ln\left(\frac{R_{2}+\sqrt{{\left(\frac{L}{2}-z\right)}^2+{R_{2}}^2}}{R_{1}+\sqrt{{\left(\frac{L}{2}-z\right)}^2+{R_{1}}^2}}\right) + \dots \right] $$
+
+*(Note: The full derivative expansion is handled symbolically in [identify_physics.m](../../Simulation/MATLAB/identify_physics.m)).*
+
+### 2.5 Simplified Design Model
+For the control algorithm design and real-time execution, we approximate this complex behavior around the operating point using a Power Law model:
 
 $$ F_m(x, i) \approx K_{mag} \frac{i(t)}{x(t)^n} $$
 
-**Justification for this model structure:**
+**Justification:**
+1.  **Linearity with Current ($i$):** Valid for permanent magnets (Dipole interaction).
+2.  **Effective Exponent ($n$):** By fitting this model to the ground truth data around the equilibrium point, the parameter $n$ captures the **effective decay rate**, implicitly compensating for the coil's geometry.
 
-1.  **Linearity with Current ($i$ vs $i^2$):** Since the target is a **Permanent Magnet** (constant dipole moment) and not a passive ferromagnetic material (variable reluctance), the force depends linearly on the magnetic field $B$, and consequently linearly on the current $i$. This allows the controller to exert both attractive and repulsive forces (bidirectional control).
-
-2.  **Effective Exponent ($n$):** While the exact analytical solution involves complex geometric terms (as seen in Sec 2.2), the local behavior of the magnetic field gradient can be accurately approximated by an inverse power law $x^{-n}$. By fitting this model to the ground truth data around the equilibrium point, the parameter $n$ captures the **effective decay rate**, implicitly compensating for the coil's finite thickness and geometric offsets without increasing computational complexity.
 ---
 
 ## 3. Equilibrium & Linearization
@@ -78,32 +84,13 @@ Substituting the simplified model into Newton's law:
 
 $$ m \ddot{x} = m g - K_{mag} \frac{i}{x^n} $$
 
-This is a non-linear differential equation. We must linearize it around a fixed operating point (Equilibrium).
-
 ### 3.1 Equilibrium Point
-We define the desired target position $\bar{x}$.
-At equilibrium, acceleration is zero ($\ddot{x} = 0$) and current is constant ($\bar{i}$).
-
-$$ 0 = m g - K_{mag} \frac{\bar{i}}{\bar{x}^n} $$
-
-Solving for the equilibrium current $\bar{i}$:
+At equilibrium ($\ddot{x} = 0$, $x = \bar{x}$), the required current $\bar{i}$ is:
 
 $$ \bar{i} = \frac{m g \bar{x}^n}{K_{mag}} $$
 
 ### 3.2 Linearization (Taylor Expansion)
-We define small perturbations around the equilibrium:
-*   $x(t) = \bar{x} + \tilde{x}(t)$
-*   $i(t) = \bar{i} + \tilde{i}(t)$
-
-Expanding the non-linear term using Taylor Series (first order):
-
-$$ F_m(x, i) \approx F_m(\bar{x}, \bar{i}) + \left( \frac{\partial F_m}{\partial x} \right)_{eq} \tilde{x} + \left( \frac{\partial F_m}{\partial i} \right)_{eq} \tilde{i} $$
-
-Calculating the partial derivatives:
-1.  **Current Gain:** $\frac{\partial}{\partial i} \left( K \frac{i}{x^n} \right) = \frac{K}{\bar{x}^n} = \frac{mg}{\bar{i}}$
-2.  **Position Stiffness:** $\frac{\partial}{\partial x} \left( K \frac{i}{x^n} \right) = -n K \frac{\bar{i}}{\bar{x}^{n+1}} = -n \frac{mg}{\bar{x}}$
-
-Substituting back into the differential equation (noting the negative sign of $F_m$):
+Expanding around $(\bar{x}, \bar{i})$:
 
 $$ m \ddot{\tilde{x}} = \left( n \frac{mg}{\bar{x}} \right) \tilde{x} - \left( \frac{mg}{\bar{i}} \right) \tilde{i} $$
 
@@ -112,7 +99,7 @@ Dividing by $m$:
 $$ \ddot{\tilde{x}} = \left( \frac{n g}{\bar{x}} \right) \tilde{x} - \left( \frac{g}{\bar{i}} \right) \tilde{i} $$
 
 ### 3.3 Transfer Function
-Applying Laplace Transform ($s^2 X(s)$ for acceleration):
+Applying Laplace Transform:
 
 $$ s^2 X(s) - \frac{ng}{\bar{x}} X(s) = - \frac{g}{\bar{i}} I(s) $$
 
@@ -121,18 +108,10 @@ The Open-Loop Transfer Function $G(s) = \frac{X(s)}{I(s)}$ is:
 $$ G(s) = \frac{- \frac{g}{\bar{i}}}{s^2 - \frac{ng}{\bar{x}}} $$
 
 **Stability Analysis:**
-The poles are at $s = \pm \sqrt{\frac{ng}{\bar{x}}}$.
-Since one pole is real and positive, the system is **Open-Loop Unstable**.
-
----
-
-## 4. System Parameters Reference
-The numerical values used for simulation and code generation are strictly defined in the configuration file.
-
-> [**📄 View System Parameters Table**](System_Parameters.md)
+The poles are at $s = \pm \sqrt{\frac{ng}{\bar{x}}}$. Since one pole is real and positive, the system is **Open-Loop Unstable**.
 
 ---
 
 ## References
 1.  Fuso, F. (2015). *Campo magnetico prodotto da un solenoide*. Dipartimento di Fisica, Università di Pisa. [Online PDF](https://osiris.df.unipi.it/~fuso/dida/solenoide.pdf)
-2.  Supermagnete. *Physical magnet data*. Retrieved December 2025 from [supermagnete.de/eng/physical-magnet-data](https://www.supermagnete.de/eng/physical-magnet-data)
+2.  Supermagnete. *Physical magnet data*. Retrieved December 2025 from [supermagnete.de](https://www.supermagnete.de/eng/physical-magnet-data)

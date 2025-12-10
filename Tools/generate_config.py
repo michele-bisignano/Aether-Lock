@@ -58,7 +58,7 @@ namespace Config {{
     namespace Control {{
         constexpr float LOOP_FREQ_HZ = {ctrl['loop_frequency_hz']};
         constexpr float LOOP_PERIOD_S = 1.0f / {ctrl['loop_frequency_hz']};
-        constexpr float TARGET_DIST_M = {ctrl['setpoint_distance_m']};
+        constexpr float TARGET_DIST_M = Plant::EQUILIBRIUM_DIST_M;
         
         namespace PID {{
             constexpr float KP = {ctrl['pid_gains']['kp']};
@@ -102,6 +102,7 @@ x_eq = {phy['equilibrium_distance_m']};
 R_coil = {phy['coil_resistance_ohm']};
 L_coil = {phy['coil_inductance_henry']};
 K_mag_approx = {phy['magnetic_constant_K']};
+core_amp_factor = {phy['core_amplification_factor']};
 
 %% Magnetic Properties
 m_mag_val = {phy['magnet_dipole_moment_Am2']}; % Magnetic Dipole Moment [A*m^2]

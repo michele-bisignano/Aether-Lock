@@ -10,14 +10,15 @@
     "_description": "Estimated physics including coil geometry for Biot-Savart",
     "mass_kg": 0.007,
     "gravity_mss": 9.81,
-    "equilibrium_distance_m": 0.015,
+    "equilibrium_distance_m": 0.03,
     "coil_resistance_ohm": 36.0,
     "coil_inductance_henry": 0.01,
     "magnetic_constant_K": 0.0001,
     "magnet_dipole_moment_Am2": 0.1511,
+    "core_amplification_factor": 40.0,
     "coil_geometry": {
-      "inner_radius_m": 0.002,
-      "outer_radius_m": 0.0125,
+      "inner_radius_m": 0.006,
+      "outer_radius_m": 0.00825,
       "length_m": 0.020,
       "estimated_turns": 1000
     }
@@ -26,7 +27,6 @@
   "control_system": {
     "_description": "PID parameters and timing for Firmware and Simulink",
     "loop_frequency_hz": 5000,
-    "setpoint_distance_m": 0.02,
     "pid_gains": {
       "kp": 1000.0,
       "ki": 50.0,
