@@ -29,7 +29,8 @@ Aether-Lock/
 │       │
 │       ├── Aether_Control/         # Control Logic (Hardware Agnostic)
 │       │   ├── PID_Controller.h    # Discrete PID algorithm class definition
-│       │   └── PID_Controller.cpp  # Implementation of the control loop math
+│       │   └── src
+│       │        └──PID_Controller.cpp  # Implementation of the control loop math
 │       │
 │       └── Aether_System/          # System Management
 │           ├── StateMachine.h      # Finite State Machine (FSM) definition (Idle, Levitation, Error)
