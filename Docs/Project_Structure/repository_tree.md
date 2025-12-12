@@ -28,6 +28,8 @@ Aether-Lock/
 │       │   └── Aether_HAL.cpp      # Implementation of hardware-specific drivers
 │       │
 │       ├── Aether_Control/         # Control Logic (Hardware Agnostic)
+│       │   ├── MovingAverage.h     # 
+│       │   ├── MovingAverage.cpp   # 
 │       │   ├── PID_Controller.h    # Discrete PID algorithm class definition
 │       │   └── PID_Controller.cpp  # Implementation of the control loop math
 │       │
