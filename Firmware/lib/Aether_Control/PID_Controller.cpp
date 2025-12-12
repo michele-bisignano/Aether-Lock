@@ -1,4 +1,4 @@
-#include "../PID_Controller.h"
+#include "PID_Controller.h"
 
 // --- CONSTRUCTOR ---
 PID_Controller::PID_Controller(float kp, float ki, float kd, float ts)
@@ -68,4 +68,24 @@ float PID_Controller::compute(float setpoint, float measured_value)
 void PID_Controller::reset() {
     previous_error = 0.0f;
     integral = 0.0f;
+}
+
+// --- DYNAMIC TUNING SETTERS ---
+
+void PID_Controller::setKp(float kp) {
+    this->Kp = kp;
+}
+
+void PID_Controller::setKd(float kd) {
+    this->Kd = kd;
+}
+
+void PID_Controller::setKi(float ki) {
+    this->Ki = ki;
+
+    if (Ki > 1e-6f) {
+        max_integral_value = 1.0f / Ki;
+    } else {
+        max_integral_value = 0.0f;
+    }
 }

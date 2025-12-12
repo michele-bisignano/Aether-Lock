@@ -50,6 +50,11 @@ public:
      * to prevent "integral windup" jumps.
      */
     void reset();
+
+    // --- Dynamic Tuning Setters ---
+    void setKp(float kp);
+    void setKi(float ki);
+    void setKd(float kd);
 };
 
 #endif
