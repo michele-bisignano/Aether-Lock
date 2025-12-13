@@ -1,27 +1,23 @@
-%% Aether-Lock: Physics Identification & Model Matching
-% This script uses symbolic computation (Ground Truth - Thick Solenoid) to:
-% 1. Identify the parameters (n, K) for the simplified control model.
-% 2. Calculate the required Equilibrium Current.
-% 3. Extract the linearized coefficients (kx, ki) for the PID design.
-
+%% Aether-Lock: Physics Identification & Taylor Analysis
 clear; clc; close all;
 
-%% 1. Load Parameters (SSOT)
+%% 1. Load Parameters (Single Source of Truth)
+% This must load ALL necessary variables. If it fails here,
+% it means the Python script was not executed or is incomplete.
 if exist('load_params.m', 'file')
     load_params;
 else
-    error('File load_params.m not found. Please run the Python generation script first.');
+    error('File load_params.m not found. Run the Python script first.');
 end
 
-% Initial parameters for geometric fitting
-I_guess = 0.0794;      % Test current for shape analysis [A]
-mu_val = 4*pi*1e-7 * core_amp_factor; % Effective Permeability [H/m]
+% Extra parameters for graphical fitting
+I_guess = 0.5;
 
-%% 2. Symbolic Model (Ground Truth - Thick Solenoid)
+%% 2. Symbolic Model (Ground Truth)
 syms z real       % Distance
 syms L R1 R2 real % Geometry
 syms mu0 N I real % Physics
-syms m_mag real   % Dipole Moment
+syms m_mag real   % Dipole
 
 % --- B-Field Formula (Thick Solenoid) ---
 num_pos = R2 + sqrt(R2^2 + (z + L/2)^2);
@@ -35,124 +31,97 @@ term2 = (z - L/2) * log(num_neg / den_neg);
 PreFactor = (mu0 * N * I) / (2 * L * (R2 - R1));
 Bz_sym = PreFactor * (term1 - term2);
 
-% --- Force Calculation (Gradient) ---
-% F = m * (dB/dz)
+% Apply Core Amplification Factor (Read from load_params)
+Bz_sym = Bz_sym * core_amp_factor;
+
+% --- Force Calculation ---
 Force_sym = m_mag * diff(Bz_sym, z);
 
-fprintf('✅ Symbolic Model constructed successfully.\n');
+fprintf('✅ Symbolic Model built.\n');
+
+%% --- Display Equation with Numbers ---
+% Substitute the constants loaded from load_params
+Force_with_numbers = subs(Force_sym, ...
+    {L, R1, R2, mu0, N, m_mag}, ...
+    {geom_L, geom_R1, geom_R2, mu0_val, geom_N, m_mag_val});
+
+fprintf('\n=== FORCE EQUATION (Substituted Parameters) ===\n');
+fprintf('F(z, I) = \n');
+pretty(vpa(Force_with_numbers, 3)); 
+fprintf('==============================================\n');
 
 %% 3. Identification of 'n' and 'K' (Fitting)
-% Create a numeric function to simulate reality
 F_num_func = matlabFunction(Force_sym, 'Vars', {z, L, R1, R2, mu0, N, I, m_mag});
 
-% Generate data points around equilibrium using the guess current
+% Fitting range
 range = 0.005; 
 z_vector = linspace(x_eq - range, x_eq + range, 200);
-F_data_guess = abs(F_num_func(z_vector, geom_L, geom_R1, geom_R2, mu_val, geom_N, I_guess, m_mag_val));
+F_data_guess = abs(F_num_func(z_vector, geom_L, geom_R1, geom_R2, mu0_val, geom_N, I_guess, m_mag_val));
 
-% Log-Log Regression: ln(F) = ln(K_tot) - n*ln(z)
+% Log-Log Regression
 Y = log(F_data_guess);
 X = log(z_vector);
 coeffs = polyfit(X, Y, 1);
 
-n_identified = -coeffs(1);           % Exponent n
-
-% Force in x_eq
-F_true_at_eq = abs(F_num_func(x_eq, geom_L, geom_R1, geom_R2, mu_val, geom_N, I_guess, m_mag_val));
-
-% Inverse formula: K = (F * x^n) / I
-K_mag_identified = (F_true_at_eq * (x_eq^n_identified)) / I_guess;
+n_identified = -coeffs(1);
+K_tot_fit = exp(coeffs(2));
+K_mag_identified = K_tot_fit / I_guess;
 
 fprintf('\n=== IDENTIFICATION RESULTS ===\n');
-fprintf('Identified Exponent (n) : %.4f\n', n_identified);
-fprintf('Physical Constant (K)   : %.4e\n', K_mag_identified);
+fprintf('Identified exponent n : %.4f\n', n_identified);
+fprintf('Physical constant K   : %.4e\n', K_mag_identified);
 
-%% 4. Equilibrium Current Calculation
-% Balance: F_mag = F_gravity
-% (K * I) / x^n = m * g
-% I = (m * g * x^n) / K
-
+%% 4. Calculation of the TRUE Equilibrium Current
 F_weight = mass * g;
 I_eq_calc = (F_weight * (x_eq^n_identified)) / K_mag_identified;
 
-fprintf('\n=== REAL OPERATING POINT ===\n');
-fprintf('Target Weight Force     : %.4f N\n', F_weight);
-fprintf('Required Current (I_eq) : %.4f A\n', I_eq_calc);
+fprintf('\n=== ACTUAL OPERATING POINT ===\n');
+fprintf('Weight Force        : %.4f N\n', F_weight);
+fprintf('Equilibrium Current : %.4f A\n', I_eq_calc);
 
-%% 5. Linearization (Taylor) at Operating Point
-% Recalculate coefficients using the REAL required current
-
-% A. Position Stiffness (k_x)
-% Using the derivative of the simplified model: dF/dz = -n * F / z
+%% 5. Linearization (Taylor)
 k_x = -n_identified * F_weight / x_eq; 
-% Note: k_x is physically negative (force decreases with distance),
-% but in the differential equation (m*a = mg - F), it becomes a positive
-% term driving instability. We use absolute value for the model A matrix.
-
-% B. Current Gain (k_i)
-% dF/dI = F / I
 k_i = F_weight / I_eq_calc;
 
 fprintf('\n=== LINEAR MODEL COEFFICIENTS ===\n');
 fprintf('k_x (Stiffness)     : %.4f N/m\n', abs(k_x));
 fprintf('k_i (Current Gain)  : %.4f N/A\n', k_i);
-
-% Open Loop Poles
 lambda = sqrt(abs(k_x) / mass);
-fprintf('Unstable Pole       : +%.2f rad/s\n', lambda);
+fprintf('Unstable poles      : +/- %.2f rad/s\n', lambda);
 
-%% 6. Final Verification Plot (Linear Scale)
-% Recalculate "True" force (Pisa model) using the CALCULATED equilibrium current
-F_real_final = abs(F_num_func(z_vector, geom_L, geom_R1, geom_R2, mu_val, geom_N, I_eq_calc, m_mag_val));
-
-% Calculate "Simplified Model" force using the calculated current
+%% 6. Graphical Verification
+F_real_final = abs(F_num_func(z_vector, geom_L, geom_R1, geom_R2, mu0_val, geom_N, I_eq_calc, m_mag_val));
 F_simple_final = (K_mag_identified * I_eq_calc) ./ (z_vector .^ n_identified);
 
 figure('Name', 'Model Validation');
 plot(z_vector*1000, F_real_final, 'b', 'LineWidth', 2); hold on;
 plot(z_vector*1000, F_simple_final, 'r--', 'LineWidth', 2);
-yline(F_weight, 'g-.', 'Weight Force');
+yline(F_weight, 'g-.', 'Target');
 xline(x_eq*1000, 'k:', 'Equilibrium');
+grid on; legend('Real', 'Simple', 'Weight');
+xlabel('Distance [mm]'); ylabel('Force [N]');
+title(sprintf('Comparison at I = %.2f A', I_eq_calc));
 
-grid on;
-legend('Real Model (Thick Solenoid)', 'Simplified Model (PID)', 'Gravity');
-xlabel('Distance [mm]');
-ylabel('Force [N]');
-title(sprintf('Model Comparison at I = %.2f A', I_eq_calc));
-subtitle(sprintf('Check the overlap between Blue and Red lines at the vertical black line'));
+%% 8. Sensor Calibration & Linearization
+% Use variables loaded from load_params (without an exist check)
+Sens_Hall_VT = Hall_Sens_mV_G * 10; 
 
-%% 7. Wide Range Plot (0 to 1 Meter)
-% Visualization of the global force behavior.
-% WARNING: We start at 0.005 (5mm) to avoid division by zero.
+% Derivative of the B-field with respect to z (calculated at the equilibrium point)
+Bz_eq_sym = subs(Bz_sym, I, I_eq_calc);
+dB_dz_sym = diff(Bz_sym, z);
+dB_dz_val = double(subs(dB_dz_sym, {z, I, L, R1, R2, mu0, N, m_mag}, ...
+                                   {x_eq, I_eq_calc, geom_L, geom_R1, geom_R2, mu0_val, geom_N, m_mag_val}));
 
-z_wide = linspace(0.005, 1.0, 1000); % Vector from 1mm to 1 meter
+% B and Volts at equilibrium
+B_at_eq = double(subs(Bz_eq_sym, {z, L, R1, R2, mu0, N, m_mag}, ...
+                                 {x_eq, geom_L, geom_R1, geom_R2, mu0_val, geom_N, m_mag_val}));
+V_at_eq = V_zero_theoretical + (B_at_eq * Sens_Hall_VT);
 
-% Recalculate forces over the entire range
-F_real_wide = abs(F_num_func(z_wide, geom_L, geom_R1, geom_R2, mu_val, geom_N, I_eq_calc, m_mag_val));
-F_simple_wide = (K_mag_identified * I_eq_calc) ./ (z_wide .^ n_identified);
-figure('Name', 'Global Force Behavior');
+% Resulting sensitivity
+dV_dz = Sens_Hall_VT * dB_dz_val; 
+K_sens_code = 1 / dV_dz; 
 
-% --- Subplot 1: Linear Scale (What you asked for) ---
-subplot(2,1,1);
-plot(z_wide, F_real_wide, 'b', 'LineWidth', 2); hold on;
-plot(z_wide, F_simple_wide, 'r--', 'LineWidth', 2);
-yline(F_weight, 'g-.', 'Target Weight');
-
-% Limit the Y-axis to see something useful (the peak at 1mm hides everything else)
-% Showing only the first 20cm
-ylim([0, F_weight * 5]); 
-xlim([0, 0.2]); 
-xlabel('Distance [m]'); ylabel('Force [N]');
-title('Linear Scale (Zoom on first 20cm)');
-legend('Real Model', 'Simplified Model (Ki/x^n)');
-grid on;
-
-% --- Subplot 2: Log-Log Scale (To see the full 1m range) ---
-subplot(2,1,2);
-loglog(z_wide, F_real_wide, 'b', 'LineWidth', 2); hold on;
-loglog(z_wide, F_simple_wide, 'r--', 'LineWidth', 2);
-yline(F_weight, 'g-.');
-
-xlabel('Distance [m]'); ylabel( 'Force [N]');
-title('Log-Log Scale (Full 0-1m Range)');
-grid on;
+fprintf('\n=== SENSOR CALIBRATION (Theoretical) ===\n');
+fprintf('B-Field at %.1f mm     : %.4f Tesla\n', x_eq*1000, B_at_eq);
+fprintf('Voltage at %.1f mm     : %.4f V\n', x_eq*1000, V_at_eq);
+fprintf('Inverse Sensitivity    : %.6f m/V\n', K_sens_code);
