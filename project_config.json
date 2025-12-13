@@ -48,7 +48,8 @@
     },
     "pwm_settings": {
       "frequency_hz": 20000,
-      "resolution_bits": 10
+      "resolution_bits": 10,
+      "pwm_channel": 0
     }
   }
 }

@@ -37,6 +37,10 @@ def generate_cpp_header(data):
     ctrl = data["control_system"]
     hw = data["hardware_mapping"]
 
+    # Calculate PWM max value based on resolution
+    pwm_bits = hw['pwm_settings']['resolution_bits']
+    pwm_max_val = (1 << pwm_bits) - 1
+
     content = f"""/**
  * @file Config.h
  * @brief AUTO-GENERATED FILE from project_config.json. DO NOT EDIT MANUALLY.
@@ -77,6 +81,9 @@ namespace Config {{
         
         constexpr int PWM_FREQ = {hw['pwm_settings']['frequency_hz']};
         constexpr int PWM_BITS = {hw['pwm_settings']['resolution_bits']};
+        constexpr int PWM_CHANNEL = {hw['pwm_settings']['pwm_channel']};
+
+        constexpr int PWM_MAX_DUTY = {pwm_max_val};
     }}
 }}
 """

@@ -1,3 +1,4 @@
+```
 Aether-Lock/
 ├── .gitignore                      
 ├── LICENSE                         # MIT License
@@ -51,3 +52,4 @@ Aether-Lock/
     │   └── load_params.m # Script for analyzing system stability and plotting results
     └── Simulink/
         └── MagLev_ClosedLoop.slx   # Simulink model for tuning PID gains and simulating physics
+```

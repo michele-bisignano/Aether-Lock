@@ -19,7 +19,7 @@ namespace Config {
     namespace Control {
         constexpr float LOOP_FREQ_HZ = 5000;
         constexpr float LOOP_PERIOD_S = 1.0f / 5000;
-        constexpr float TARGET_DIST_M = 0.02;
+        constexpr float TARGET_DIST_M = Plant::EQUILIBRIUM_DIST_M;
         
         namespace PID {
             constexpr float KP = 1000.0;
@@ -38,5 +38,8 @@ namespace Config {
         
         constexpr int PWM_FREQ = 20000;
         constexpr int PWM_BITS = 10;
+        constexpr int PWM_CHANNEL = 0;
+
+        constexpr int PWM_MAX_DUTY = 1023;
     }
 }
