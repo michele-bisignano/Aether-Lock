@@ -18,14 +18,15 @@ namespace Config {
         constexpr float LOOP_FREQ_HZ = 5000;
         constexpr float LOOP_PERIOD_S = 1.0f / 5000;
         constexpr float TARGET_DIST_M = Plant::EQUILIBRIUM_DIST_M;
+        constexpr int FILTER_SIZE = 10;
 
         constexpr unsigned long FALL_TIMEOUT_MS = 1000;
         constexpr float POS_TOLERANCE_M = 0.01;        
         
         namespace PID {
-            constexpr float KP = 1000.0;
-            constexpr float KI = 50.0;
-            constexpr float KD = 25.0;
+            constexpr float KP = 101.85;
+            constexpr float KI = 509.24;
+            constexpr float KD = 2.72;
         }
     }
 

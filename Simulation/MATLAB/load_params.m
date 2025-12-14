@@ -8,9 +8,9 @@ x_eq = 0.03;
 R_coil = 36.0;
 L_coil = 0.01;
 
-%% Physics Constants
-core_amp_factor = 40.0; 
+%% Magnetic Properties
 m_mag_val = 0.1511; 
+core_amp_factor = 40.0;
 
 %% Coil Geometry
 geom_R1 = 0.006;
@@ -19,15 +19,20 @@ geom_L = 0.02;
 geom_N = 1000;
 mu0_val = 4*pi*1e-7;
 
-%% Sensor Specifications
+%% Sensor & Hardware Specs
 V_supply = 3.3;
 Hall_Sens_mV_G = 1.4; 
+Sensor_Offset = 0.01;
 V_zero_theoretical = 1.65;
+ADC_max = 4095;
+V_ref = 3.3;
+PWM_max = 1023;
 
-%% Control System
+
+%% Control System Targets & Initial Gains
 Ts = 1 / 5000;
-Kp = 1000.0;
-Ki = 50.0;
-Kd = 25.0;
+Kp_config = 101.85;
+Ki_config = 509.24;
+Kd_config = 2.72;
 
 disp('✅ Aether-Lock Parameters Loaded Successfully');

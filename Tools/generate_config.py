@@ -6,6 +6,10 @@
 
 import json
 import os
+import sys
+
+if sys.platform.startswith('win'):
+    sys.stdout.reconfigure(encoding='utf-8')
 
 # --- PATH CONFIGURATION ---   
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -17,13 +21,12 @@ MATLAB_PATH = os.path.join(PROJECT_ROOT, "Simulation", "MATLAB", "load_params.m"
 DOCS_PATH = os.path.join(PROJECT_ROOT, "Docs", "Theory", "System_Parameters.md")
 
 def load_config():
-    print(f"Reading configuration from: {JSON_PATH}")
-    # FIX: Aggiunto encoding='utf-8' per leggere caratteri speciali nel JSON
+    print(f"🔄 Reading configuration from: {JSON_PATH}")
     with open(JSON_PATH, 'r', encoding='utf-8') as f:
         return json.load(f)
 
 def generate_cpp_header(data):
-    print(f"Generating C++ Header: {CPP_PATH}")
+    print(f"🔨 Generating C++ Header: {CPP_PATH}")
     
     phy = data["physical_plant"]
     ctrl = data["control_system"]
@@ -62,6 +65,7 @@ namespace Config {{
         constexpr float LOOP_FREQ_HZ = {ctrl['loop_frequency_hz']};
         constexpr float LOOP_PERIOD_S = 1.0f / {ctrl['loop_frequency_hz']};
         constexpr float TARGET_DIST_M = Plant::EQUILIBRIUM_DIST_M;
+        constexpr int FILTER_SIZE = {ctrl['filter_window_size']};
 
         constexpr unsigned long FALL_TIMEOUT_MS = {ctrl['safety']['fall_timeout_ms']};
         constexpr float POS_TOLERANCE_M = {ctrl['safety']['position_tolerance_m']};        
@@ -92,22 +96,23 @@ namespace Config {{
 }}
 """
     os.makedirs(os.path.dirname(CPP_PATH), exist_ok=True)
-    # FIX: Aggiunto encoding='utf-8'
     with open(CPP_PATH, 'w', encoding='utf-8') as f:
         f.write(content)
 
 def generate_matlab_script(data):
-    print(f"Generating MATLAB Script: {MATLAB_PATH}")
+    print(f"🔨 Generating MATLAB Script: {MATLAB_PATH}")
     
     phy = data["physical_plant"]
     geo = phy["coil_geometry"]
     ctrl = data["control_system"]
     hw = data["hardware_mapping"]
     sensor = hw['sensor_specs']
-
-    # FIX: Gestione sicurezza se manca nel JSON
-    core_factor = phy.get('core_amplification_factor', 1.0)
+    adc = hw['adc_settings']
+    pwm = hw['pwm_settings']
     
+    adc_max = (1 << adc['resolution_bits']) - 1
+    pwm_max = (1 << pwm['resolution_bits']) - 1
+
     content = f"""% AUTO-GENERATED FILE from project_config.json
 % Run this script to load parameters into the workspace
 
@@ -118,9 +123,9 @@ x_eq = {phy['equilibrium_distance_m']};
 R_coil = {phy['coil_resistance_ohm']};
 L_coil = {phy['coil_inductance_henry']};
 
-%% Physics Constants
-core_amp_factor = {core_factor}; 
+%% Magnetic Properties
 m_mag_val = {phy['magnet_dipole_moment_Am2']}; 
+core_amp_factor = {phy['core_amplification_factor']};
 
 %% Coil Geometry
 geom_R1 = {geo['inner_radius_m']};
@@ -129,26 +134,30 @@ geom_L = {geo['length_m']};
 geom_N = {geo['estimated_turns']};
 mu0_val = 4*pi*1e-7;
 
-%% Sensor Specifications
+%% Sensor & Hardware Specs
 V_supply = {sensor['supply_voltage_v']};
 Hall_Sens_mV_G = {sensor['sensitivity_mv_per_gauss_datasheet']}; 
+Sensor_Offset = {sensor['sensor_offset_from_coil_m']};
 V_zero_theoretical = {sensor['quiescent_output_v']};
+ADC_max = {adc_max};
+V_ref = {adc['reference_voltage_v']};
+PWM_max = {pwm_max};
 
-%% Control System
+
+%% Control System Targets & Initial Gains
 Ts = 1 / {ctrl['loop_frequency_hz']};
-Kp = {ctrl['pid_gains']['kp']};
-Ki = {ctrl['pid_gains']['ki']};
-Kd = {ctrl['pid_gains']['kd']};
+Kp_config = {ctrl['pid_gains']['kp']};
+Ki_config = {ctrl['pid_gains']['ki']};
+Kd_config = {ctrl['pid_gains']['kd']};
 
 disp('✅ Aether-Lock Parameters Loaded Successfully');
 """
     os.makedirs(os.path.dirname(MATLAB_PATH), exist_ok=True)
-    # FIX: Aggiunto encoding='utf-8' per gestire l'emoji
     with open(MATLAB_PATH, 'w', encoding='utf-8') as f:
         f.write(content)
 
 def generate_markdown_doc(data):
-    print(f"Generating Documentation: {DOCS_PATH}")
+    print(f"🔨 Generating Documentation: {DOCS_PATH}")
     
     phy = data["physical_plant"]
     ctrl = data["control_system"]
@@ -174,7 +183,6 @@ def generate_markdown_doc(data):
 | Kd | `{ctrl['pid_gains']['kd']}` | - | Derivative Gain |
 """
     os.makedirs(os.path.dirname(DOCS_PATH), exist_ok=True)
-    # FIX: Aggiunto encoding='utf-8'
     with open(DOCS_PATH, 'w', encoding='utf-8') as f:
         f.write(content)
 

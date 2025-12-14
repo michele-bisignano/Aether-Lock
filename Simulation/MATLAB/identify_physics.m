@@ -11,7 +11,7 @@ else
 end
 
 % Extra parameters for graphical fitting
-I_guess = 0.5;
+I_guess = 0.0794;
 
 %% 2. Symbolic Model (Ground Truth)
 syms z real       % Distance

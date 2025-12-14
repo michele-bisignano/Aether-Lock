@@ -27,8 +27,8 @@
   "control_system": {
     "_description": "PID parameters and timing for Firmware and Simulink",
     "loop_frequency_hz": 5000,
-    "pid_gains": { "kp": 1000.0, "ki": 50.0, "kd": 25.0 },
-    "filter_alpha": 0.1,
+    "pid_gains": { "kp": 101.85, "ki": 509.24, "kd": 2.72 },
+    "filter_window_size": 10, 
     "safety": {
       "fall_timeout_ms": 1000,
       "position_tolerance_m": 0.01
@@ -44,7 +44,8 @@
       "supply_voltage_v": 3.3,
       "sensitivity_mv_per_gauss_datasheet": 1.4, 
       "quiescent_output_v": 1.65,
-      "sensitivity_m_per_v": 0.157301 
+      "sensitivity_m_per_v": 0.157301,
+      "sensor_offset_from_coil_m": 0.01 
     },
     "adc_settings": {
       "resolution_bits": 12,
