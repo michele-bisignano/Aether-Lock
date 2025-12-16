@@ -35,6 +35,8 @@ Aether-Lock/
 │       │   └── PID_Controller.cpp  # Implementation of the control loop math
 │       │
 │       └── Aether_System/          # System Management
+│           ├── SerialManager.h     
+│           ├── SerialManager.cpp   
 │           ├── StateMachine.h      # Finite State Machine (FSM) definition (Idle, Levitation, Error)
 │           └── SafetyManager.h     # Emergency handling and fault detection logic
 │
