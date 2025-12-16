@@ -11,16 +11,16 @@
     "mass_kg": 0.007,
     "gravity_mss": 9.81,
     "equilibrium_distance_m": 0.03,
-    "coil_resistance_ohm": 36.0,
-    "coil_inductance_henry": 0.01,
+    "coil_resistance_ohm": 28.57,
+    "coil_inductance_henry": 0.1,
     "magnetic_constant_K": 0.0001,
     "magnet_dipole_moment_Am2": 0.1511,
     "core_amplification_factor": 40.0,
     "coil_geometry": {
       "inner_radius_m": 0.006,
-      "outer_radius_m": 0.00825,
+      "outer_radius_m": 0.0145,
       "length_m": 0.020,
-      "estimated_turns": 1000
+      "estimated_turns": 1250
     }
   },
 

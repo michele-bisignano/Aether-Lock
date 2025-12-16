@@ -5,8 +5,8 @@
 mass = 0.007;
 g = 9.81;
 x_eq = 0.03;
-R_coil = 36.0;
-L_coil = 0.01;
+R_coil = 28.57;
+L_coil = 0.1;
 
 %% Magnetic Properties
 m_mag_val = 0.1511; 
@@ -14,9 +14,9 @@ core_amp_factor = 40.0;
 
 %% Coil Geometry
 geom_R1 = 0.006;
-geom_R2 = 0.00825;
+geom_R2 = 0.0145;
 geom_L = 0.02;
-geom_N = 1000;
+geom_N = 1250;
 mu0_val = 4*pi*1e-7;
 
 %% Sensor & Hardware Specs
