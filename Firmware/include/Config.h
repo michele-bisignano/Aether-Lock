@@ -10,16 +10,20 @@ namespace Config {
     namespace Plant {
         constexpr float MASS_KG = 0.007;
         constexpr float GRAVITY = 9.81;
-        constexpr float EQUILIBRIUM_DIST_M = 0.03;
         constexpr float COIL_RESISTANCE = 28.57;
     }
 
     namespace Control {
         constexpr float LOOP_FREQ_HZ = 5000;
         constexpr float LOOP_PERIOD_S = 1.0f / 5000;
-        constexpr float TARGET_DIST_M = Plant::EQUILIBRIUM_DIST_M;
         constexpr int FILTER_SIZE = 10;
+        constexpr unsigned long TELEMETRY_MS = 50;
 
+        // Raw ADC Setpoints
+        constexpr float TARGET_ADC = 2200;
+        constexpr float IDLE_THRESHOLD = 100;
+
+        // Safety Constants
         constexpr unsigned long FALL_TIMEOUT_MS = 1000;
         constexpr float POS_TOLERANCE_M = 0.01;        
         
@@ -34,16 +38,18 @@ namespace Config {
         constexpr int PIN_HALL = 34;
         constexpr int PIN_PWM = 25;
         
+        // ADC & Sensor
         constexpr int ADC_BITS = 12;
         constexpr float ADC_REF_V = 3.3;
         constexpr float VOLTS_PER_BIT = 0.0008058608058608059;
-        
+
         constexpr float HALL_ZERO_V = 1.65; 
         constexpr float HALL_SENSITIVITY = 0.157301; 
         
+        // PWM Settings
         constexpr int PWM_FREQ = 20000;
         constexpr int PWM_BITS = 10;
         constexpr int PWM_CHANNEL = 0;
-        constexpr int PWM_MAX_DUTY = 1023;
+        constexpr int PWM_MAX_DUTY = 1023; 
     }
 }

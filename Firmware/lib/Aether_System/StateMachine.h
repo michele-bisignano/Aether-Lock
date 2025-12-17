@@ -26,8 +26,9 @@ private:
     // Variables for time management (Safety)
     unsigned long lastTimeInRange; // Last time angel was seen "nearby"
 
-    // Safety constants (could go into Config, but for now we keep them here)
-    const unsigned long FALL_TIMEOUT_MS = 1000; // If it falls for 1 sec, turn everything off
+    // Debug variables for telemetry
+    volatile float _debug_distance_adc;
+    volatile float _debug_pwm_duty;
 
     // Private methods to handle each state
     void handleIdle();
@@ -57,6 +58,10 @@ public:
      * @brief Forces a reset of errors (e.g. via serial command)
      */
     void resetError();
+
+    // Getters for Telemetry (SerialManager)
+    float getRawDistance() const;
+    float getPWMDuty() const;
 };
 
 #endif

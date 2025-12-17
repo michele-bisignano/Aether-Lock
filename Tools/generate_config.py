@@ -31,19 +31,14 @@ def generate_cpp_header(data):
     phy = data["physical_plant"]
     ctrl = data["control_system"]
     hw = data["hardware_mapping"]
-    
     sensor = hw['sensor_specs']
     adc = hw['adc_settings']
 
     # --- PRE-COMPUTATIONS ---
-    pwm_bits = hw['pwm_settings']['resolution_bits']
-    pwm_max_val = (1 << pwm_bits) - 1
+    pwm_max = (1 << hw['pwm_settings']['resolution_bits']) - 1
+    adc_max = (1 << adc['resolution_bits']) - 1
+    volts_per_bit = adc['reference_voltage_v'] / adc_max
 
-    adc_bits = adc['resolution_bits']
-    adc_max_val = (1 << adc_bits) - 1
-    adc_ref_v = adc['reference_voltage_v']
-
-    volts_per_bit = adc_ref_v / adc_max_val
 
     content = f"""/**
  * @file Config.h
@@ -57,16 +52,20 @@ namespace Config {{
     namespace Plant {{
         constexpr float MASS_KG = {phy['mass_kg']};
         constexpr float GRAVITY = {phy['gravity_mss']};
-        constexpr float EQUILIBRIUM_DIST_M = {phy['equilibrium_distance_m']};
         constexpr float COIL_RESISTANCE = {phy['coil_resistance_ohm']};
     }}
 
     namespace Control {{
         constexpr float LOOP_FREQ_HZ = {ctrl['loop_frequency_hz']};
         constexpr float LOOP_PERIOD_S = 1.0f / {ctrl['loop_frequency_hz']};
-        constexpr float TARGET_DIST_M = Plant::EQUILIBRIUM_DIST_M;
         constexpr int FILTER_SIZE = {ctrl['filter_window_size']};
+        constexpr unsigned long TELEMETRY_MS = {ctrl['telemetry_interval_ms']};
 
+        // Raw ADC Setpoints
+        constexpr float TARGET_ADC = {ctrl['setpoints']['target_adc_value']};
+        constexpr float IDLE_THRESHOLD = {ctrl['setpoints']['idle_threshold_adc']};
+
+        // Safety Constants
         constexpr unsigned long FALL_TIMEOUT_MS = {ctrl['safety']['fall_timeout_ms']};
         constexpr float POS_TOLERANCE_M = {ctrl['safety']['position_tolerance_m']};        
         
@@ -81,17 +80,19 @@ namespace Config {{
         constexpr int PIN_HALL = {hw['pins']['hall_sensor_pin']};
         constexpr int PIN_PWM = {hw['pins']['pwm_coil_pin']};
         
-        constexpr int ADC_BITS = {adc_bits};
-        constexpr float ADC_REF_V = {adc_ref_v};
+        // ADC & Sensor
+        constexpr int ADC_BITS = {adc['resolution_bits']};
+        constexpr float ADC_REF_V = {adc['reference_voltage_v']};
         constexpr float VOLTS_PER_BIT = {volts_per_bit};
-        
+
         constexpr float HALL_ZERO_V = {sensor['quiescent_output_v']}; 
         constexpr float HALL_SENSITIVITY = {sensor['sensitivity_m_per_v']}; 
         
+        // PWM Settings
         constexpr int PWM_FREQ = {hw['pwm_settings']['frequency_hz']};
         constexpr int PWM_BITS = {hw['pwm_settings']['resolution_bits']};
         constexpr int PWM_CHANNEL = {hw['pwm_settings']['pwm_channel']};
-        constexpr int PWM_MAX_DUTY = {pwm_max_val};
+        constexpr int PWM_MAX_DUTY = {pwm_max}; 
     }}
 }}
 """

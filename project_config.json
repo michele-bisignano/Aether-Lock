@@ -27,34 +27,52 @@
   "control_system": {
     "_description": "PID parameters and timing for Firmware and Simulink",
     "loop_frequency_hz": 5000,
-    "pid_gains": { "kp": 101.85, "ki": 509.24, "kd": 2.72 },
     "filter_window_size": 10, 
+    "telemetry_interval_ms": 50,
+
+    "pid_gains": { 
+      "kp": 101.85, 
+      "ki": 509.24, 
+      "kd": 2.72
+    },
+
+    "setpoints": {
+    "target_adc_value": 2200,
+    "idle_threshold_adc": 100,
+    "safety_min_adc": 1000,
+    "safety_max_adc": 4000
+    },
+
     "safety": {
       "fall_timeout_ms": 1000,
       "position_tolerance_m": 0.01
     }
   },
-"hardware_mapping": {
+
+  "hardware_mapping": {
     "_description": "ESP32 Pinout and Electrical specs",
     "pins": {
       "hall_sensor_pin": 34,
       "pwm_coil_pin": 25
     },
+
+    "adc_settings": {
+      "resolution_bits": 12,
+      "reference_voltage_v": 3.3
+    },
+
+    "pwm_settings": {
+      "frequency_hz": 20000,
+      "resolution_bits": 10,
+      "pwm_channel": 0
+    },
+
     "sensor_specs": {
       "supply_voltage_v": 3.3,
       "sensitivity_mv_per_gauss_datasheet": 1.4, 
       "quiescent_output_v": 1.65,
       "sensitivity_m_per_v": 0.157301,
       "sensor_offset_from_coil_m": 0.01 
-    },
-    "adc_settings": {
-      "resolution_bits": 12,
-      "reference_voltage_v": 3.3
-    },
-    "pwm_settings": {
-      "frequency_hz": 20000,
-      "resolution_bits": 10,
-      "pwm_channel": 0
     }
   }
 }

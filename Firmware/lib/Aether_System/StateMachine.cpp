@@ -1,62 +1,57 @@
 #include "StateMachine.h"
 
-// --- CONSTRUCTOR ---
 StateMachine::StateMachine(Aether_HAL* halPtr, PID_Controller* pidPtr, MovingAverage* filterPtr) {
     this->hal = halPtr;
     this->pid = pidPtr;
     this->filter = filterPtr;
     this->currentState = STATE_IDLE;
+    this->_debug_distance_adc = 0;
+    this->_debug_pwm_duty = 0;
 }
 
-// --- INITIALIZATION ---
 void StateMachine::init() {
-    // Safe initial state
     currentState = STATE_IDLE;
     hal->setCoilPower(0.0f);
     hal->setLed(false);
 }
 
-// --- MAIN LOOP ---
 void StateMachine::update() {
-    // 1. Sensor Reading (Common to all states)
+    // 1. Read & Filter
     int raw = hal->readSensorRaw();
-    float filtered = filter->process((float)raw);
+    float current_val = filter->process((float)raw);
     
-    // Raw conversion to Meters (same logic as previous main)
-    // TODO: Calibrate these values with real hardware!
-    float voltage = filtered * Config::Hardware::VOLTS_PER_BIT;;
-    
-    float distance = Config::Control::TARGET_DIST_M + 
-                    (voltage - Config::Hardware::HALL_ZERO_V) * Config::Hardware::HALL_SENSITIVITY;
+    // Update Telemetry Data
+    _debug_distance_adc = current_val;
 
-    // State Machine Switch
+    // 2. State Logic
     switch (currentState) {
         case STATE_IDLE:
-            // Coil off
             hal->setCoilPower(0.0f);
             hal->setLed(false);
+            _debug_pwm_duty = 0.0f;
 
-            // Transition: If the angel is detected near the setpoint, activate control
-            // ("Hand-over" feature: you bring it close by hand, and the system takes over)
-            if (isAngelInRange(distance)) {
-                pid->reset(); // Reset the integral term before starting
+            // Activation condition: Angel is close enough
+            // Target - Threshold (e.g., 2200 - 100 = 2100)
+            if (current_val > (Config::Control::TARGET_ADC - Config::Control::IDLE_THRESHOLD)) {
+                pid->reset();
                 currentState = STATE_LEVITATING;
             }
             break;
 
         case STATE_LEVITATING:
             {
-                // Execute PID
-                float output = pid->compute(Config::Control::TARGET_DIST_M, distance);
+                // Compute PID based on Raw ADC values
+                float output = pid->compute(Config::Control::TARGET_ADC, current_val);
+                
                 hal->setCoilPower(output);
-                hal->setLed(true); // LED on = System active
+                hal->setLed(true);
+                _debug_pwm_duty = output;
 
-                // Safety Check: Has the angel fallen?
-                if (isAngelInRange(distance)) {
-                    lastTimeInRange = millis(); // Reset timer if in range
+                // Safety Check
+                if (isAngelInRange(current_val)) {
+                    lastTimeInRange = millis();
                 }
 
-                // If the angel is out of position for too long -> EMERGENCY
                 if ((millis() - lastTimeInRange) > Config::Control::FALL_TIMEOUT_MS) {
                     currentState = STATE_ERROR;
                 }
@@ -64,34 +59,34 @@ void StateMachine::update() {
             break;
 
         case STATE_ERROR:
-            // Thermal protection: Shut everything down!
             hal->setCoilPower(0.0f);
+            _debug_pwm_duty = 0.0f;
             
-            // Blinking LED (Simple error signaling using millis)
-            // Fast blink (approx every 200ms cycle)
-            if ((millis() / 200) % 2 == 0) hal->setLed(true);
-            else hal->setLed(false);
+            // Blink LED to indicate error
+            if ((millis() / 200) % 2 == 0) hal->setLed(true); else hal->setLed(false);
 
-            // To exit the error state, the user must remove the angel or reset.
-            // Here we could implement an auto-reset if the angel is removed (voltage returns to center),
-            // or require a manual reset via serial/button.
+            // Auto-reset if magnet is removed (value goes low)
+            if (current_val < (Config::Control::TARGET_ADC - 200)) { // Hysteresis
+                currentState = STATE_IDLE;
+            }
             break;
     }
 }
 
-// --- HELPER: CHECK POSITION ---
-bool StateMachine::isAngelInRange(float distance) {
-    // Define a "safe zone" around the target
-    float target = Config::Control::TARGET_DIST_M;
-    float tolerance = Config::Control::POS_TOLERANCE_M;
-
-    if (distance > (target - tolerance) && distance < (target + tolerance)) {
+bool StateMachine::isAngelInRange(float raw_value) {
+    // Check if value is within safe bounds defined in JSON
+    if (raw_value > Config::Control::SAFETY_MIN_ADC && 
+        raw_value < Config::Control::SAFETY_MAX_ADC) {
         return true;
     }
     return false;
 }
 
-// --- HELPER: MANUAL RESET ---
-void StateMachine::resetError() {
-    currentState = STATE_IDLE;
+// --- TELEMETRY GETTERS ---
+float StateMachine::getRawDistance() const {
+    return _debug_distance_adc;
+}
+
+float StateMachine::getPWMDuty() const {
+    return _debug_pwm_duty;
 }

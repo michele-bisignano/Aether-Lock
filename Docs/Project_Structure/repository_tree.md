@@ -35,8 +35,8 @@ Aether-Lock/
 │       │   └── PID_Controller.cpp  # Implementation of the control loop math
 │       │
 │       └── Aether_System/          # System Management
-│           ├── SerialManager.h     
-│           ├── SerialManager.cpp   
+│           ├── SerialManager.h     # Serial command interface definition
+│           ├── SerialManager.cpp   # Handles commands and telemetry
 │           ├── StateMachine.h      # Finite State Machine (FSM) definition (Idle, Levitation, Error)
 │           └── SafetyManager.h     # Emergency handling and fault detection logic
 │
@@ -45,7 +45,7 @@ Aether-Lock/
 │   │   ├── SS49E_Hall_Sensor.pdf   # Linear Hall-effect sensor specifications
 │   │   └── IRLZ44N_MOSFET.pdf      # Logic-level MOSFET specifications
 │   ├── Mechanical/
-│   │   └── Mount_Support.stl       # 3D printable file for the coil/sensor support
+│   │   └── BOM.md                  # Hardware Bill of Materials 
 │   └── Schematics/
 │       └── wiring_diagram.pdf      # Circuit diagram and connection map
 │
