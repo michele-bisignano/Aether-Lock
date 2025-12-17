@@ -35,10 +35,12 @@ Aether-Lock/
 │       │   └── PID_Controller.cpp  # Implementation of the control loop math
 │       │
 │       └── Aether_System/          # System Management
-│           ├── SerialManager.h     # Serial command interface definition
-│           ├── SerialManager.cpp   # Handles commands and telemetry
-│           ├── StateMachine.h      # Finite State Machine (FSM) definition (Idle, Levitation, Error)
-│           └── SafetyManager.h     # Emergency handling and fault detection logic
+│           ├── ThermalGuard.h      # Virtual thermal sensor definition
+│           ├── ThermalGuard.cpp    # Coil temperature estimation logic
+│           ├── SerialManager.h     # Serial communication interface definition
+│           ├── SerialManager.cpp   # Command parsing and telemetry streaming
+│           ├── StateMachine.h      # Finite State Machine (FSM) definition
+│           └── StateMachine.cpp    # System logic and state transitions
 │
 ├── Hardware/                       # Physical Design and Component Specifications
 │   ├── Datasheets/

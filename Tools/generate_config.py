@@ -83,6 +83,7 @@ namespace Config {{
 
         namespace Thermal {{
             constexpr float MAX_TEMP_C = {therm['max_temp_celsius']};
+            constexpr float WARNING_TEMP_C = {therm['warning_temp_celsius']};
             constexpr float AMBIENT_TEMP_C = {therm['ambient_temp_celsius']};
             constexpr float SUPPLY_VOLTAGE = {therm['supply_voltage_v']};
             constexpr float R_THERMAL = {therm['thermal_resistance_c_per_watt']};
@@ -95,6 +96,7 @@ namespace Config {{
     namespace Hardware {{
         constexpr int PIN_HALL = {hw['pins']['hall_sensor_pin']};
         constexpr int PIN_PWM = {hw['pins']['pwm_coil_pin']};
+        constexpr int PIN_WARN_LED = {hw['pins']['warning_led_pin']};
         
         // ADC & Sensor
         constexpr int ADC_BITS = {adc['resolution_bits']};

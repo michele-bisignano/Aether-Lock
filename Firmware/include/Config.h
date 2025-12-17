@@ -38,6 +38,7 @@ namespace Config {
 
         namespace Thermal {
             constexpr float MAX_TEMP_C = 75.0;
+            constexpr float WARNING_TEMP_C = 60.0;
             constexpr float AMBIENT_TEMP_C = 25.0;
             constexpr float SUPPLY_VOLTAGE = 12.0;
             constexpr float R_THERMAL = 15.0;
@@ -50,6 +51,7 @@ namespace Config {
     namespace Hardware {
         constexpr int PIN_HALL = 34;
         constexpr int PIN_PWM = 25;
+        constexpr int PIN_WARN_LED = 15;
         
         // ADC & Sensor
         constexpr int ADC_BITS = 12;

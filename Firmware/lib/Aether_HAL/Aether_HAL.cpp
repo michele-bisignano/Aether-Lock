@@ -21,10 +21,14 @@ void Aether_HAL::init() {
     // Initialize with coil OFF for safety
     setCoilPower(0.0f);
 
-    // 3. Status LED Initialization (if available on board)
+    // 3. Warning LED Initialization (if available on board)
+    pinMode(Config::Hardware::PIN_WARN_LED, OUTPUT);
+    setWarningLed(false);
+
+    // 4. Status LED Initialization (if available on board)
     #ifdef PIN_LED_BUILTIN
     pinMode(PIN_LED_BUILTIN, OUTPUT);
-    #endif
+    #endif    
 }
 
 int Aether_HAL::readSensorRaw() {
@@ -51,4 +55,8 @@ void Aether_HAL::setLed(bool state) {
     #ifdef PIN_LED_BUILTIN
     digitalWrite(PIN_LED_BUILTIN, state ? HIGH : LOW);
     #endif
+}
+
+void Aether_HAL::setWarningLed(bool state) {
+    digitalWrite(Config::Hardware::PIN_WARN_LED, state ? HIGH : LOW);
 }

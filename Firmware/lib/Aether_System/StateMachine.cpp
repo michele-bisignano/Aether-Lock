@@ -20,6 +20,13 @@ void StateMachine::update() {
     int raw = hal->readSensorRaw();
     float current_val = filter->process((float)raw);
     bool temp_ok = thermalProtection.update(_debug_pwm_duty);
+    float current_temp = thermalProtection.getTemperature();
+
+    if (current_temp > Config::Control::Thermal::WARNING_TEMP_C) {
+        hal->setWarningLed(true);
+    } else {
+        hal->setWarningLed(false);
+    }
 
     // Update Telemetry Data
     _debug_distance_adc = current_val;

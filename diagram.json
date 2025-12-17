@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "author": "Aether-Lock Engineer",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "board-esp32-s2-devkitm-1", "id": "esp", "top": -50, "left": -150, "attrs": {} },
+    { "type": "wokwi-breadboard", "id": "bb1", "top": 80, "left": -150, "attrs": {} },
+    
+    { "type": "wokwi-potentiometer", "id": "hall-sensor", "top": 200, "left": 180, "attrs": { "label": "SS49E (Hall)" } },
+    
+    { "type": "wokwi-mosfet-n", "id": "mosfet", "top": 100, "left": 60, "attrs": { "label": "IRLZ44N" } },
+    { "type": "wokwi-diode", "id": "flyback", "top": 140, "left": 100, "rotate": 90, "attrs": { "label": "1N4007" } },
+    
+    { "type": "wokwi-led", "id": "coil-led", "top": 50, "left": 120, "attrs": { "color": "blue", "label": "COIL EMULATION" } },
+    { "type": "wokwi-resistor", "id": "r-coil", "top": 20, "left": 120, "rotate": 90, "attrs": { "value": "120", "label": "Coil Load" } },
+
+    { "type": "wokwi-led", "id": "led-warn", "top": 260, "left": -80, "attrs": { "color": "red", "label": "OVERHEAT" } },
+    { "type": "wokwi-resistor", "id": "r-warn", "top": 220, "left": -80, "rotate": 90, "attrs": { "value": "330" } },
+
+    { "type": "wokwi-resistor", "id": "r-pulldown", "top": 150, "left": 10, "rotate": 90, "attrs": { "value": "10000", "label": "10k PullDown" } },
+    { "type": "wokwi-resistor", "id": "r-series", "top": 210, "left": 80, "attrs": { "value": "1000", "label": "1k Filter" } },
+    { "type": "wokwi-capacitor", "id": "c-filter", "top": 240, "left": 50, "attrs": { "value": "100n", "label": "100nF" } }
+  ],
+  "connections": [
+    [ "esp:GND.1", "bb1:tn.1", "black", [] ],
+    [ "esp:3V3", "bb1:tp.1", "red", [] ],
+    
+    [ "r-coil:1", "bb1:tp.25", "red", [ "v-30" ] ], 
+    [ "r-coil:2", "coil-led:A", "blue", [] ],
+    [ "coil-led:C", "mosfet:D", "blue", [] ], 
+    [ "mosfet:S", "bb1:tn.20", "black", [] ], 
+    
+    [ "flyback:A", "mosfet:D", "green", [] ], 
+    [ "flyback:C", "bb1:tp.25", "green", [ "v-20" ] ],
+
+    [ "esp:25", "mosfet:G", "purple", [] ],
+    [ "mosfet:G", "r-pulldown:1", "purple", [] ],
+    [ "r-pulldown:2", "bb1:tn.18", "black", [] ],
+
+
+    [ "hall-sensor:GND", "bb1:tn.50", "black", [] ],
+    [ "hall-sensor:VCC", "bb1:tp.50", "red", [] ],
+    
+    [ "hall-sensor:SIG", "r-series:1", "green", [] ],
+    [ "r-series:2", "esp:4", "green", [ "v0" ] ], 
+    [ "r-series:2", "c-filter:1", "green", [] ],
+    [ "c-filter:2", "bb1:tn.40", "black", [] ], 
+
+    [ "esp:15", "r-warn:1", "orange", [] ],
+    [ "r-warn:2", "led-warn:A", "red", [] ],
+    [ "led-warn:C", "bb1:tn.10", "black", [] ]
+  ]
+}

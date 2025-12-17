@@ -38,6 +38,12 @@ public:
      * @param state true = ON, false = OFF
      */
     void setLed(bool state);
+
+    /**
+     * @brief Toggles the onboard Warning LED.
+     * @param state true = ON, false = OFF
+     */
+    void setWarningLed(bool state);
 };
 
 #endif
