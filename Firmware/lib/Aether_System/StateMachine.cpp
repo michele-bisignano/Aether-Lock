@@ -19,9 +19,13 @@ void StateMachine::update() {
     // 1. Read & Filter
     int raw = hal->readSensorRaw();
     float current_val = filter->process((float)raw);
-    
+    bool temp_ok = thermalProtection.update(_debug_pwm_duty);
+
     // Update Telemetry Data
     _debug_distance_adc = current_val;
+    if (!temp_ok && currentState != STATE_ERROR) {
+        currentState = STATE_ERROR;
+    }
 
     // 2. State Logic
     switch (currentState) {
@@ -89,4 +93,8 @@ float StateMachine::getRawDistance() const {
 
 float StateMachine::getPWMDuty() const {
     return _debug_pwm_duty;
+}
+
+float StateMachine::getTemperature() const {
+    return thermalProtection.getTemperature();
 }

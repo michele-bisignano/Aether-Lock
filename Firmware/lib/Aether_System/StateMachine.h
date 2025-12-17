@@ -6,6 +6,8 @@
 #include "PID_Controller.h"
 #include "MovingAverage.h"
 #include "Config.h"
+#include "ThermalGuard.h"
+
 
 // States definition
 enum SystemState {
@@ -20,6 +22,7 @@ private:
     Aether_HAL* hal;
     PID_Controller* pid;
     MovingAverage* filter;
+    ThermalGuard thermalProtection;
 
     SystemState currentState;
 
@@ -62,6 +65,7 @@ public:
     // Getters for Telemetry (SerialManager)
     float getRawDistance() const;
     float getPWMDuty() const;
+    float getTemperature() const;
 };
 
 #endif

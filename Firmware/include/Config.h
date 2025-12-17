@@ -22,15 +22,28 @@ namespace Config {
         // Raw ADC Setpoints
         constexpr float TARGET_ADC = 2200;
         constexpr float IDLE_THRESHOLD = 100;
-
+        constexpr float SAFETY_MIN_ADC = 1000;
+        constexpr float SAFETY_MAX_ADC = 4000;
+        
         // Safety Constants
         constexpr unsigned long FALL_TIMEOUT_MS = 1000;
-        constexpr float POS_TOLERANCE_M = 0.01;        
+        constexpr float POS_TOLERANCE_M = 0.01;   
+             
         
         namespace PID {
             constexpr float KP = 101.85;
             constexpr float KI = 509.24;
             constexpr float KD = 2.72;
+        }
+
+        namespace Thermal {
+            constexpr float MAX_TEMP_C = 75.0;
+            constexpr float AMBIENT_TEMP_C = 25.0;
+            constexpr float SUPPLY_VOLTAGE = 12.0;
+            constexpr float R_THERMAL = 15.0;
+            
+            // Fattore pre-calcolato: Gradi guadagnati per Watt in un ciclo
+            constexpr float TEMP_RISE_PER_WATT = 1e-05;
         }
     }
 

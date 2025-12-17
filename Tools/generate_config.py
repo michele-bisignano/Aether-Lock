@@ -33,12 +33,15 @@ def generate_cpp_header(data):
     hw = data["hardware_mapping"]
     sensor = hw['sensor_specs']
     adc = hw['adc_settings']
+    therm = ctrl['thermal_safety']
 
     # --- PRE-COMPUTATIONS ---
     pwm_max = (1 << hw['pwm_settings']['resolution_bits']) - 1
     adc_max = (1 << adc['resolution_bits']) - 1
     volts_per_bit = adc['reference_voltage_v'] / adc_max
-
+    thermal_capacity = therm['coil_mass_kg'] * therm['specific_heat_joule_per_kg_c']
+    dt = 1.0 / ctrl['loop_frequency_hz']
+    temp_rise_per_watt_tick = dt / thermal_capacity
 
     content = f"""/**
  * @file Config.h
@@ -64,15 +67,28 @@ namespace Config {{
         // Raw ADC Setpoints
         constexpr float TARGET_ADC = {ctrl['setpoints']['target_adc_value']};
         constexpr float IDLE_THRESHOLD = {ctrl['setpoints']['idle_threshold_adc']};
-
+        constexpr float SAFETY_MIN_ADC = {ctrl['setpoints']['safety_min_adc']};
+        constexpr float SAFETY_MAX_ADC = {ctrl['setpoints']['safety_max_adc']};
+        
         // Safety Constants
         constexpr unsigned long FALL_TIMEOUT_MS = {ctrl['safety']['fall_timeout_ms']};
-        constexpr float POS_TOLERANCE_M = {ctrl['safety']['position_tolerance_m']};        
+        constexpr float POS_TOLERANCE_M = {ctrl['safety']['position_tolerance_m']};   
+             
         
         namespace PID {{
             constexpr float KP = {ctrl['pid_gains']['kp']};
             constexpr float KI = {ctrl['pid_gains']['ki']};
             constexpr float KD = {ctrl['pid_gains']['kd']};
+        }}
+
+        namespace Thermal {{
+            constexpr float MAX_TEMP_C = {therm['max_temp_celsius']};
+            constexpr float AMBIENT_TEMP_C = {therm['ambient_temp_celsius']};
+            constexpr float SUPPLY_VOLTAGE = {therm['supply_voltage_v']};
+            constexpr float R_THERMAL = {therm['thermal_resistance_c_per_watt']};
+            
+            // Fattore pre-calcolato: Gradi guadagnati per Watt in un ciclo
+            constexpr float TEMP_RISE_PER_WATT = {temp_rise_per_watt_tick};
         }}
     }}
 
