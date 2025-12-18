@@ -4,15 +4,15 @@ This document lists all the hardware components required to build the Aether-Loc
 
 | Component | Description | Qty | Link / Notes |
 | :--- | :--- | :---: | :--- |
-| **Microcontroller** | ESP32-S2 DevKitM (Puthernm) - WROOM Module | 1 | [Link Amazon](https://www.amazon.it/dp/B0G43PGPQH) |
-| **Voltage Regulator** | LM2596 Step-Down Converter (12V to 5V for MCU) | 1 | [Link Amazon](https://www.amazon.it/AZ-Delivery-LM2596S-Step-Down-Convertitore-Digitale/dp/B08T158WPS ) 
-| **Hall Sensor** | SS49E Linear Hall Effect Sensor (Analog) - Pack of 10 | 1 | [Link Amazon](https://www.amazon.it/Reland-Sun-elemento-Sensore-Effetto/dp/B09CMP2RK9) |
-| **Electromagnet** | 12V DC Holding Electromagnet (Model P25/20 or P20/15) - 5kg Force | 1 | [Link Amazon](https://www.techmaker.it/altro/706-elettromagnete-12-v-5-kg) [Link AliExpress](https://it.aliexpress.com/item/1005010259832011.html) |
-| **MOSFET** | IRLZ44N Logic Level N-Channel MOSFET (Pack of 10) | 1 | [Link Amazon](https://www.amazon.it/dp/B09WV8W8ZG) |
-| **Magnet** | Neodymium Magnet (NdFeB) - Disc 8mm x 3mm (N35/N42) | 1 | [Link Acquisto](INSERISCI_QUI_IL_LINK) |
-| **Power Supply** | 12V 2A DC Adapter | 1 | [Link Acquisto](https://www.techmaker.it/altro/88-diodo-1n4007) |
-| **Protection** | Diode 1N4007 (Flyback protection) | 1 || [Link Acquisto](https://www.techmaker.it/altro/88-diodo-1n4007) |
-| **Resistors** | 10kΩ (Pull-down) | 1 |  [Link Acquisto](https://www.techmaker.it/resistori/104-resistore-da-10-k-ohm) |
+| **Microcontroller** | ESP32-30Pin CP2102 | 1 | [Link Aliexpress](https://it.aliexpress.com/item/1005007084904270.html) |
+| **Voltage Regulator** | LM2596 Step-Down Converter (12V to 5V for MCU) | 1 | [Link Aliexpress](https://it.aliexpress.com/item/1005007724306361.html) |
+| **Hall Sensor** | SS49E Linear Hall Effect Sensor (Analog) | 1 | [Link Aliexpress](https://it.aliexpress.com/item/1005006136921399.html) |
+| **Electromagnet** | 12V DC Holding Electromagnet (Model P25/20) - 5kg Force | 1 | [Link AliExpress](https://it.aliexpress.com/item/1005010259832011.html) |
+| **MOSFET** | IRLZ44N Logic Level N-Channel MOSFET | 1 | [Link Aliexpress](https://it.aliexpress.com/item/1005008120572312.html) |
+| **Power Supply** | 12V 2A DC Adapter | 1 | [Link Aliexpress](https://it.aliexpress.com/item/4000521124523.html) |
+| **Protection** | Diode 1N4007 (Flyback protection) | 1 | Arduino Kit |
+| **Resistors** | 10kΩ (Pull-down), 1kΩ (Filter), 330Ω (LED) | 1 set |  Arduino Kit |
+| **Levitating Object** | Neodymium Magnet (Permanent Magnet) | 1 | Small & Strong magnet |
 
 ## Assembly Notes
 *   **Sensor Placement:** The SS49E must be glued exactly at the center of the electromagnet's core.
