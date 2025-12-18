@@ -62,7 +62,7 @@
   "hardware_mapping": {
     "_description": "ESP32 Pinout and Electrical specs",
     "pins": {
-      "hall_sensor_pin": 34,
+      "hall_sensor_pin": 4,
       "pwm_coil_pin": 25,
       "warning_led_pin": 15
     },

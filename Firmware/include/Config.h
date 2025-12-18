@@ -49,7 +49,7 @@ namespace Config {
     }
 
     namespace Hardware {
-        constexpr int PIN_HALL = 34;
+        constexpr int PIN_HALL = 4;
         constexpr int PIN_PWM = 25;
         constexpr int PIN_WARN_LED = 15;
         

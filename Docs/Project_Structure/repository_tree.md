@@ -43,13 +43,11 @@ Aether-Lock/
 │           └── StateMachine.cpp    # System logic and state transitions
 │
 ├── Hardware/                       # Physical Design and Component Specifications
-│   ├── Datasheets/
-│   │   ├── SS49E_Hall_Sensor.pdf   # Linear Hall-effect sensor specifications
-│   │   └── IRLZ44N_MOSFET.pdf      # Logic-level MOSFET specifications
 │   ├── Mechanical/
 │   │   └── BOM.md                  # Hardware Bill of Materials 
 │   └── Schematics/
-│       └── wiring_diagram.pdf      # Circuit diagram and connection map
+│       ├── Aether_Lock_Schematic_v1.png    # Visual preview of the electrical schematic
+│       └── Aether_Lock_Schematic_v1.pdf    # High-resolution circuit diagram and wiring map
 │
 └── Simulation/                     # Model-Based Design (Digital Twin)
     ├── MATLAB/
