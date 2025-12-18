@@ -2,7 +2,7 @@
 
 The circuit is designed using EasyEDA. It includes the power stage (12V), the logic stage (5V/3.3V), and the signal conditioning for the Hall Sensor.
 
-![Schematic PNG](Hardware/Schematics/Aether_Lock_Schematic_v1.png)
+[![Circuit Schematic](Hardware/Schematics/Aether_Lock_Schematic_v1.png)](Hardware/Schematics/Aether_Lock_Schematic_v1.pdf)
 
 *   **View Schematic:** [Schematic PDF](Hardware/Schematics/Aether_Lock_Schematic_v1.pdf)
 *   **Bill of Materials:** [BOM List](Hardware/Mechanical/BOM.md)
