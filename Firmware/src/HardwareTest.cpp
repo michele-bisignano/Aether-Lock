@@ -1,98 +1,93 @@
 /**
  * @file HardwareTest.cpp
- * @brief Hardware Sanity Check.
+ * @brief Hardware Sanity Check for ESP32 WROOM.
  * 
- * USE THIS SKETCH TO:
- * 1. Verify soldering connections.
- * 2. Calibrate the Hall Sensor (Read Zero and Max values).
- * 3. Test MOSFET/Coil heating without PID risks.
+ * FEATURES:
+ * 1. Warning LED Blinking (Pin 15) every 2 seconds (Heartbeat).
+ * 2. Hall Sensor Data Printing (2 times per second).
+ * 3. Coil Ramp Test (Background) - Ramps up to 30% and down to test the MOSFET.
  */
 
 #include <Arduino.h>
 #include "Config.h"
 #include "Aether_HAL.h"
 
-#include <Arduino.h>
-#include "Aether_HAL.h"
-
-// Istanziamo l'HAL
+// Instantiate HAL
 Aether_HAL hal;
 
-void setup() {
-    // Inizializza la seriale per dire "Ciao" al PC
-    Serial.begin(115200);
+// Timing variables (Non-blocking)
+unsigned long lastLedTime = 0;
+unsigned long lastPrintTime = 0;
+unsigned long lastRampTime = 0;
 
-    // Inizializza i pin (incluso il LED sul pin 15)
+// State variables
+bool ledState = false;
+int pwm_step = 0;
+int direction = 1;
+
+void setup() {
+    // 1. Initialize Serial
+    Serial.begin(115200);
+    // Short delay to allow the USB chip to wake up
+    delay(1000); 
+
+    Serial.println("--- AETHER-LOCK HARDWARE TEST (WROOM) ---");
+    Serial.println("1. LED: Blinking (2s period)");
+    Serial.println("2. SENSOR: Printing (2 Hz)");
+    Serial.println("3. COIL: Safe Ramp (Max 30%)");
+
+    // 2. Initialize Hardware (Pins, PWM, ADC)
     hal.init();
     
-    Serial.println("TEST INIZIATO: Il LED deve lampeggiare!");
+    // Ensure everything starts off
+    hal.setCoilPower(0.0f);
+    hal.setWarningLed(false);
 }
 
 void loop() {
-    Serial.println("LED ACCESO");
-    hal.setWarningLed(true);  // Accende il LED su Pin 15
-    delay(1000);              // Aspetta 1 secondo
+    unsigned long currentMillis = millis();
 
-    Serial.println("LED SPENTO");
-    hal.setWarningLed(false); // Spegne il LED su Pin 15
-    delay(1000);              // Aspetta 1 secondo
-}
-
-/*
-// Use the HAL class you already wrote (so we test it as well)
-Aether_HAL hal;
-
-void setup() {
-    Serial.begin(115200);
-    delay(1000);
-    Serial.println("--- Aether-Lock HARDWARE TEST ---");
-    Serial.println("1. Testing LEDs...");
-    Serial.println("2. Reading Sensor...");
-    Serial.println("3. Ramping Coil Power...");
-
-    // Initialize hardware using pins from Config.h
-    hal.init();
-}
-
-void loop() {
-    static int pwm_step = 0;
-    static int direction = 1;
-    
-    // --- 1. TEST SENSOR ---
-    // Read raw value (0-4095)
-    int sensorRaw = hal.readSensorRaw();
-    
-    // Convert to Volts (for human reading only)
-    float voltage = sensorRaw * Config::Hardware::VOLTS_PER_BIT;
-
-    // --- 2. TEST COIL (Slow Ramp) ---
-    // Increase and decrease power gradually to test the MOSFET
-    // PWM goes from 0.0 to 0.3 (30% max for safety during testing)
-    float pwm_duty = (float)pwm_step / 1000.0f; 
-    hal.setCoilPower(pwm_duty);
-
-    // Update ramp step (triangle wave 0% -> 30% -> 0%)
-    pwm_step += direction;
-    if (pwm_step >= 300) direction = -1; // Max 30%
-    if (pwm_step <= 0)   direction = 1;
-
-    // --- 3. TEST LED ---
-    // Turn on the LED based on the PWM ramp cycle to verify it works
-    if (pwm_step > 150) {
-        hal.setWarningLed(true);
-    } else {
-        hal.setWarningLed(false);
+    // --- TASK 1: LED BLINK (Toggle state every 1000ms -> 2 second cycle) ---
+    if (currentMillis - lastLedTime >= 1000) {
+        lastLedTime = currentMillis;
+        
+        ledState = !ledState; // Toggle state
+        hal.setWarningLed(ledState);
+        
+        // LED Debug message (Optional, uncomment if you want to see it)
+        // if(ledState) Serial.println("[LED] ON"); else Serial.println("[LED] OFF");
     }
 
-    // --- LOGGING ---
-    // CSV format for Serial Plotter
-    // Legend: RawSensor, Voltage(x1000), PWM_Duty(x4095)
-    Serial.print("RawADC:");
-    Serial.print(sensorRaw);
-    Serial.print(",Volt_mV:");
-    Serial.print(voltage * 1000); 
-    Serial.print(",PWM_Val:");
-    Serial.println(pwm_duty * 4095); // Scalato per vederlo nel grafico
+    // --- TASK 2: PRINT SENSOR DATA (Every 500ms -> 2 Hz) ---
+    if (currentMillis - lastPrintTime >= 500) {
+        lastPrintTime = currentMillis;
 
-    delay(10); // 100Hz refresh rate
-}*/
+        // Read raw value (0-4095)
+        int raw = hal.readSensorRaw();
+        
+        // Calculate voltage (for human reference only)
+        float volts = raw * Config::Hardware::VOLTS_PER_BIT;
+
+        // Formatted print
+        Serial.print(">> SENSOR RAW: ");
+        Serial.print(raw);
+        Serial.print("  |  VOLTAGE: ");
+        Serial.print(volts, 3);
+        Serial.println(" V");
+    }
+
+    // --- TASK 3: COIL TEST (Very fast - every 10ms for smoothness) ---
+    // This verifies that the MOSFET opens and the coil pulls slightly
+    if (currentMillis - lastRampTime >= 10) {
+        lastRampTime = currentMillis;
+
+        // Calculate duty cycle (0.0 -> 0.3)
+        float duty = (float)pwm_step / 1000.0f;
+        hal.setCoilPower(duty);
+
+        // Update ramp step
+        pwm_step += direction;
+        if (pwm_step >= 300) direction = -1; // Max 30% for thermal safety
+        if (pwm_step <= 0)   direction = 1;
+    }
+}
