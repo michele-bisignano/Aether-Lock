@@ -1,93 +1,78 @@
 /**
  * @file HardwareTest.cpp
- * @brief Hardware Sanity Check for ESP32 WROOM.
+ * @brief Coil & Sensor Relationship Test
  * 
- * FEATURES:
- * 1. Warning LED Blinking (Pin 15) every 2 seconds (Heartbeat).
- * 2. Hall Sensor Data Printing (2 times per second).
- * 3. Coil Ramp Test (Background) - Ramps up to 30% and down to test the MOSFET.
+ * This script is used to verify:
+ * 1. The sensor's response to the generated magnetic field.
+ * 2. The proper functioning of the MOSFET and the Coil.
+ * 3. The relationship between PWM and heating (touch the coil with caution).
  */
 
 #include <Arduino.h>
 #include "Config.h"
 #include "Aether_HAL.h"
 
-// Instantiate HAL
+// Hardware Abstraction Layer instance
 Aether_HAL hal;
 
-// Timing variables (Non-blocking)
-unsigned long lastLedTime = 0;
-unsigned long lastPrintTime = 0;
-unsigned long lastRampTime = 0;
-
-// State variables
-bool ledState = false;
-int pwm_step = 0;
-int direction = 1;
+// Ramp Parameters
+float current_pwm = 0.0f; // Current duty cycle (0.0 - 1.0)
+float step_size = 0.01f;  // 1% increment per cycle
+int direction = 1;        // 1 = Increasing, -1 = Decreasing
 
 void setup() {
-    // 1. Initialize Serial
+    // 1. Serial Initialization
     Serial.begin(115200);
-    // Short delay to allow the USB chip to wake up
-    delay(1000); 
+    delay(1000); // Safety wait
 
-    Serial.println("--- AETHER-LOCK HARDWARE TEST (WROOM) ---");
-    Serial.println("1. LED: Blinking (2s period)");
-    Serial.println("2. SENSOR: Printing (2 Hz)");
-    Serial.println("3. COIL: Safe Ramp (Max 30%)");
-
-    // 2. Initialize Hardware (Pins, PWM, ADC)
-    hal.init();
+    Serial.println("--- AETHER-LOCK COIL TEST ---");
+    Serial.println("Warning: Coil might get hot at 100% duty cycle.");
     
-    // Ensure everything starts off
-    hal.setCoilPower(0.0f);
-    hal.setWarningLed(false);
+    // CSV Table Header
+    Serial.println("Raw_Sensor_Value,PWM_Percent");
+
+    // 2. Hardware Initialization
+    hal.init();
 }
 
 void loop() {
-    unsigned long currentMillis = millis();
+    // --- 1. ACTION: Set Coil Power ---
+    hal.setCoilPower(current_pwm);
 
-    // --- TASK 1: LED BLINK (Toggle state every 1000ms -> 2 second cycle) ---
-    if (currentMillis - lastLedTime >= 1000) {
-        lastLedTime = currentMillis;
-        
-        ledState = !ledState; // Toggle state
-        hal.setWarningLed(ledState);
-        
-        // LED Debug message (Optional, uncomment if you want to see it)
-        // if(ledState) Serial.println("[LED] ON"); else Serial.println("[LED] OFF");
+    // --- 2. ACTION: LED Feedback ---
+    // ON when the field increases (charging), OFF when it decreases (discharging)
+    if (direction > 0) {
+        hal.setWarningLed(true);
+    } else {
+        hal.setWarningLed(false);
     }
 
-    // --- TASK 2: PRINT SENSOR DATA (Every 500ms -> 2 Hz) ---
-    if (currentMillis - lastPrintTime >= 500) {
-        lastPrintTime = currentMillis;
+    // --- 3. READING: Hall Sensor ---
+    int rawSensor = hal.readSensorRaw();
 
-        // Read raw value (0-4095)
-        int raw = hal.readSensorRaw();
-        
-        // Calculate voltage (for human reference only)
-        float volts = raw * Config::Hardware::VOLTS_PER_BIT;
+    // --- 4. OUTPUT: Data Table ---
+    // Print: Raw Sensor Value, Coil Power Percentage
+    Serial.print(rawSensor);
+    Serial.print(",");
+    Serial.println(current_pwm * 100.0f);
 
-        // Formatted print
-        Serial.print(">> SENSOR RAW: ");
-        Serial.print(raw);
-        Serial.print("  |  VOLTAGE: ");
-        Serial.print(volts, 3);
-        Serial.println(" V");
+    // --- 5. RAMP LOGIC ---
+    current_pwm += (step_size * direction);
+
+    // Direction reversal management (Bounce)
+    if (current_pwm >= 1.0f) {
+        current_pwm = 1.0f;
+        direction = -1; // Start decreasing
+        // Brief pause at maximum to check if the sensor is stable
+        delay(200); 
+    } else if (current_pwm <= 0.0f) {
+        current_pwm = 0.0f;
+        direction = 1; // Start increasing
+        // Brief pause at zero
+        delay(200);
     }
 
-    // --- TASK 3: COIL TEST (Very fast - every 10ms for smoothness) ---
-    // This verifies that the MOSFET opens and the coil pulls slightly
-    if (currentMillis - lastRampTime >= 10) {
-        lastRampTime = currentMillis;
-
-        // Calculate duty cycle (0.0 -> 0.3)
-        float duty = (float)pwm_step / 1000.0f;
-        hal.setCoilPower(duty);
-
-        // Update ramp step
-        pwm_step += direction;
-        if (pwm_step >= 300) direction = -1; // Max 30% for thermal safety
-        if (pwm_step <= 0)   direction = 1;
-    }
+    // Test speed calculation:
+    // 50ms delay * 100 steps = 5 seconds to ramp from 0 to 100%
+    delay(50); 
 }

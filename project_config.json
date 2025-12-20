@@ -11,7 +11,7 @@
     "mass_kg": 0.007,
     "gravity_mss": 9.81,
     "equilibrium_distance_m": 0.03,
-    "coil_resistance_ohm": 28.57,
+    "coil_resistance_ohm": 34,
     "coil_inductance_henry": 0.1,
     "magnetic_constant_K": 0.0001,
     "magnet_dipole_moment_Am2": 0.1511,
