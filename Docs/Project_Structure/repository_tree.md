@@ -21,6 +21,7 @@ Aether-Lock/
 │   │   └── Config.h                # Costants
 │   │
 │   ├── src/
+│   │   ├── HardwareTest.cpp        #  Hardware Sanity Check
 │   │   └── main.cpp                # Application Entry Point: Task scheduling and Setup
 │   │
 │   └── lib/                        # Custom Modular Libraries (Object-Oriented Architecture)
