@@ -12,6 +12,33 @@
 #include "Config.h"
 #include "Aether_HAL.h"
 
+#include <Arduino.h>
+#include "Aether_HAL.h"
+
+// Istanziamo l'HAL
+Aether_HAL hal;
+
+void setup() {
+    // Inizializza la seriale per dire "Ciao" al PC
+    Serial.begin(115200);
+
+    // Inizializza i pin (incluso il LED sul pin 15)
+    hal.init();
+    
+    Serial.println("TEST INIZIATO: Il LED deve lampeggiare!");
+}
+
+void loop() {
+    Serial.println("LED ACCESO");
+    hal.setWarningLed(true);  // Accende il LED su Pin 15
+    delay(1000);              // Aspetta 1 secondo
+
+    Serial.println("LED SPENTO");
+    hal.setWarningLed(false); // Spegne il LED su Pin 15
+    delay(1000);              // Aspetta 1 secondo
+}
+
+/*
 // Use the HAL class you already wrote (so we test it as well)
 Aether_HAL hal;
 
@@ -68,4 +95,4 @@ void loop() {
     Serial.println(pwm_duty * 4095); // Scalato per vederlo nel grafico
 
     delay(10); // 100Hz refresh rate
-}
+}*/
