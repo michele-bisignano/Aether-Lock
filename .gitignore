@@ -117,3 +117,14 @@ $RECYCLE.BIN/
 *.log
 *.tmp
 *.temp
+
+# -----------------------------
+# R / Data Analysis
+# -----------------------------
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+
+~$*.xlsx
+~$*.xls
