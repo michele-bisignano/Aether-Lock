@@ -10,7 +10,7 @@
     "_description": "Estimated physics including coil geometry for Biot-Savart",
     "mass_kg": 0.007,
     "gravity_mss": 9.81,
-    "equilibrium_distance_m": 0.03,
+    "equilibrium_distance_m": 0.020,
     "coil_resistance_ohm": 34,
     "coil_inductance_henry": 0.1,
     "magnetic_constant_K": 0.0001,
@@ -37,7 +37,7 @@
     },
 
     "setpoints": {
-    "target_adc_value": 2200,
+    "target_adc_value": 2053.37,
     "idle_threshold_adc": 100,
     "safety_min_adc": 1000,
     "safety_max_adc": 4000
@@ -81,7 +81,7 @@
     "sensor_specs": {
       "supply_voltage_v": 3.3,
       "sensitivity_mv_per_gauss_datasheet": 1.4, 
-      "quiescent_output_v": 1.65,
+      "quiescent_output_v": 1.5856,
       "sensitivity_m_per_v": 0.157301,
       "sensor_offset_from_coil_m": 0.01 
     }
