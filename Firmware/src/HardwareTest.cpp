@@ -1,19 +1,12 @@
 /**
  * @file HardwareTest.cpp
- * @brief Max Power Lift Test
+ * @brief Equilibrium Current Discovery (Drop-off Method)
  * 
- * SCOPO: Misurare la distanza massima di aggancio (Lift-off) a piena potenza.
- * 
- * ISTRUZIONI:
- * 1. Carica il codice.
- * 2. Apri il Monitor Seriale.
- * 3. Scrivi '1' e premi Invio per attivare la bobina al 100%.
- * 4. Avvicina il magnete dal basso finché non viene catturato.
- * 5. Misura la distanza.
- * 6. Scrivi '0' immediatamente per spegnere e raffreddare.
- * 
- * ATTENZIONE: A 100% la bobina scalda molto rapidamente! 
- * Non tenerla accesa per più di 10-15 secondi consecutivi.
+ * PROCEDURE:
+ * 1. Send '1' to start: Coil goes to 100%. Place the angel against the spacer.
+ * 2. The system automatically decreases power by 1% every second.
+ * 3. Watch carefully. The moment the angel drops, Send '0'.
+ * 4. The Serial Monitor will show the exact PWM value where gravity won.
  */
 
 #include <Arduino.h>
@@ -21,59 +14,81 @@
 #include "Aether_HAL.h"
 
 Aether_HAL hal;
-bool isMaxPower = false;
+
+bool testRunning = false;
+float currentPwm = 0.0f;
+unsigned long lastStepTime = 0;
 
 void setup() {
     Serial.begin(115200);
     hal.init();
     
-    // Assicuriamoci che parta spento
+    // Safety init
     hal.setCoilPower(0.0f);
     hal.setWarningLed(false);
 
     delay(1000);
-    Serial.println("--- AETHER-LOCK MAX POWER TEST ---");
-    Serial.println("COMMANDS:");
-    Serial.println(" [1] -> ATTIVA Bobina al 100% (Warning LED ON)");
-    Serial.println(" [0] -> SPEGNI Bobina (Warning LED OFF)");
-    Serial.println("----------------------------------");
-    Serial.println("Time(ms),State(0/1),RawSensor");
+    Serial.println("--- DROP-OFF TEST READY ---");
+    Serial.println("1. Put spacer (e.g., 2cm) under the coil.");
+    Serial.println("2. Type '1' + Enter to START (Coil Max Power).");
+    Serial.println("3. Attach the angel.");
+    Serial.println("4. Wait... Power decreases 1% per second.");
+    Serial.println("5. When it drops, Type '0' + Enter IMMEDIATELY.");
 }
 
 void loop() {
-    // --- 1. GESTIONE COMANDI SERIALI ---
+    // --- GESTIONE INPUT SERIALE ---
     if (Serial.available() > 0) {
         char cmd = Serial.read();
-        
-        // Pulisce il buffer da caratteri extra (es. a capo)
-        while(Serial.available()) Serial.read(); 
+        // Svuota buffer
+        while(Serial.available()) Serial.read();
 
         if (cmd == '1') {
-            isMaxPower = true;
-            hal.setCoilPower(1.0f); // 100% Potenza
-            hal.setWarningLed(true); // LED Acceso = PERICOLO/CALORE
-            Serial.println(">>> COIL ON (100%) - ATTENZIONE AL CALORE!");
-        } 
+            // AVVIO TEST
+            testRunning = true;
+            currentPwm = 0.54f; // Parte dal 100%
+            lastStepTime = millis();
+            hal.setCoilPower(currentPwm);
+            hal.setWarningLed(true);
+            Serial.println(">>> STARTED: 100% Power. Attach Angel NOW.");
+        }
         else if (cmd == '0') {
-            isMaxPower = false;
-            hal.setCoilPower(0.0f); // 0% Potenza
+            // STOP TEST (Caduta)
+            testRunning = false;
+            hal.setCoilPower(0.0f);
             hal.setWarningLed(false);
-            Serial.println(">>> COIL OFF - Safe");
+            
+            Serial.println("\n--- TEST RESULT ---");
+            Serial.print("DROP DETECTED AT PWM: ");
+            Serial.print(currentPwm * 100.0f, 3);
+            Serial.println(" %");
+            Serial.println("This is your Equilibrium Limit (Lower Bound).");
+            Serial.println("-------------------");
         }
     }
 
-    // --- 2. TELEMETRIA ---
-    // Stampiamo i dati per vedere come reagisce il sensore al campo massimo
-    // Nota: A 100% il campo della bobina potrebbe saturare il sensore o spostare lo zero!
-    static unsigned long lastPrint = 0;
-    if (millis() - lastPrint > 200) {
-        lastPrint = millis();
-        int raw = hal.readSensorRaw();
-        
-        Serial.print(millis());
-        Serial.print(",");
-        Serial.print(isMaxPower ? 1 : 0);
-        Serial.print(",");
-        Serial.println(raw);
+    // --- LOGICA AUTOMATICA (Decremento) ---
+    if (testRunning) {
+        // Ogni 1000ms (1 secondo) scende dell'1%
+        if (millis() - lastStepTime > 1000) {
+            lastStepTime = millis();
+            
+            currentPwm -= 0.0001f; // Scende di 0.001 (0.1%)
+            
+            // Sicurezza: non andare sotto zero
+            if (currentPwm < 0.0f) {
+                currentPwm = 0.0f;
+                testRunning = false;
+                Serial.println("Reached 0%. Test ended.");
+            }
+
+            // Applica nuova potenza
+            hal.setCoilPower(currentPwm);
+            
+            // Feedback visivo (stampa ogni step)
+            Serial.print("Current PWM: ");
+            Serial.print(currentPwm * 100.0f, 3);
+            Serial.println("%");
+        }
     }
 }

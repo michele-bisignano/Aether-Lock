@@ -18,8 +18,8 @@
     "core_amplification_factor": 40.0,
     "coil_geometry": {
       "inner_radius_m": 0.006,
-      "outer_radius_m": 0.0145,
-      "length_m": 0.020,
+      "outer_radius_m": 0.013,
+      "length_m": 0.019,
       "estimated_turns": 1250
     }
   },
@@ -38,9 +38,9 @@
 
     "setpoints": {
     "target_adc_value": 2053.37,
-    "idle_threshold_adc": 100,
-    "safety_min_adc": 1000,
-    "safety_max_adc": 4000
+    "idle_threshold_adc": 60,
+    "safety_min_adc": 1900,
+    "safety_max_adc": 3000
     },
 
     "safety": {
@@ -82,7 +82,7 @@
       "supply_voltage_v": 3.3,
       "sensitivity_mv_per_gauss_datasheet": 1.4, 
       "quiescent_output_v": 1.5856,
-      "sensitivity_m_per_v": 0.157301,
+      "sensitivity_m_per_v": 0.117, 
       "sensor_offset_from_coil_m": 0.01 
     }
   }
