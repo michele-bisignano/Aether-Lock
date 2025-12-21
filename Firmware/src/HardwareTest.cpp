@@ -1,78 +1,79 @@
 /**
  * @file HardwareTest.cpp
- * @brief Coil & Sensor Relationship Test
+ * @brief Max Power Lift Test
  * 
- * This script is used to verify:
- * 1. The sensor's response to the generated magnetic field.
- * 2. The proper functioning of the MOSFET and the Coil.
- * 3. The relationship between PWM and heating (touch the coil with caution).
+ * SCOPO: Misurare la distanza massima di aggancio (Lift-off) a piena potenza.
+ * 
+ * ISTRUZIONI:
+ * 1. Carica il codice.
+ * 2. Apri il Monitor Seriale.
+ * 3. Scrivi '1' e premi Invio per attivare la bobina al 100%.
+ * 4. Avvicina il magnete dal basso finché non viene catturato.
+ * 5. Misura la distanza.
+ * 6. Scrivi '0' immediatamente per spegnere e raffreddare.
+ * 
+ * ATTENZIONE: A 100% la bobina scalda molto rapidamente! 
+ * Non tenerla accesa per più di 10-15 secondi consecutivi.
  */
 
 #include <Arduino.h>
 #include "Config.h"
 #include "Aether_HAL.h"
 
-// Hardware Abstraction Layer instance
 Aether_HAL hal;
-
-// Ramp Parameters
-float current_pwm = 0.0f; // Current duty cycle (0.0 - 1.0)
-float step_size = 0.01f;  // 1% increment per cycle
-int direction = 1;        // 1 = Increasing, -1 = Decreasing
+bool isMaxPower = false;
 
 void setup() {
-    // 1. Serial Initialization
     Serial.begin(115200);
-    delay(1000); // Safety wait
-
-    Serial.println("--- AETHER-LOCK COIL TEST ---");
-    Serial.println("Warning: Coil might get hot at 100% duty cycle.");
-    
-    // CSV Table Header
-    Serial.println("Raw_Sensor_Value,PWM_Percent");
-
-    // 2. Hardware Initialization
     hal.init();
+    
+    // Assicuriamoci che parta spento
+    hal.setCoilPower(0.0f);
+    hal.setWarningLed(false);
+
+    delay(1000);
+    Serial.println("--- AETHER-LOCK MAX POWER TEST ---");
+    Serial.println("COMMANDS:");
+    Serial.println(" [1] -> ATTIVA Bobina al 100% (Warning LED ON)");
+    Serial.println(" [0] -> SPEGNI Bobina (Warning LED OFF)");
+    Serial.println("----------------------------------");
+    Serial.println("Time(ms),State(0/1),RawSensor");
 }
 
 void loop() {
-    // --- 1. ACTION: Set Coil Power ---
-    hal.setCoilPower(current_pwm);
+    // --- 1. GESTIONE COMANDI SERIALI ---
+    if (Serial.available() > 0) {
+        char cmd = Serial.read();
+        
+        // Pulisce il buffer da caratteri extra (es. a capo)
+        while(Serial.available()) Serial.read(); 
 
-    // --- 2. ACTION: LED Feedback ---
-    // ON when the field increases (charging), OFF when it decreases (discharging)
-    if (direction > 0) {
-        hal.setWarningLed(true);
-    } else {
-        hal.setWarningLed(false);
+        if (cmd == '1') {
+            isMaxPower = true;
+            hal.setCoilPower(1.0f); // 100% Potenza
+            hal.setWarningLed(true); // LED Acceso = PERICOLO/CALORE
+            Serial.println(">>> COIL ON (100%) - ATTENZIONE AL CALORE!");
+        } 
+        else if (cmd == '0') {
+            isMaxPower = false;
+            hal.setCoilPower(0.0f); // 0% Potenza
+            hal.setWarningLed(false);
+            Serial.println(">>> COIL OFF - Safe");
+        }
     }
 
-    // --- 3. READING: Hall Sensor ---
-    int rawSensor = hal.readSensorRaw();
-
-    // --- 4. OUTPUT: Data Table ---
-    // Print: Raw Sensor Value, Coil Power Percentage
-    Serial.print(rawSensor);
-    Serial.print(",");
-    Serial.println(current_pwm * 100.0f);
-
-    // --- 5. RAMP LOGIC ---
-    current_pwm += (step_size * direction);
-
-    // Direction reversal management (Bounce)
-    if (current_pwm >= 1.0f) {
-        current_pwm = 1.0f;
-        direction = -1; // Start decreasing
-        // Brief pause at maximum to check if the sensor is stable
-        delay(200); 
-    } else if (current_pwm <= 0.0f) {
-        current_pwm = 0.0f;
-        direction = 1; // Start increasing
-        // Brief pause at zero
-        delay(200);
+    // --- 2. TELEMETRIA ---
+    // Stampiamo i dati per vedere come reagisce il sensore al campo massimo
+    // Nota: A 100% il campo della bobina potrebbe saturare il sensore o spostare lo zero!
+    static unsigned long lastPrint = 0;
+    if (millis() - lastPrint > 200) {
+        lastPrint = millis();
+        int raw = hal.readSensorRaw();
+        
+        Serial.print(millis());
+        Serial.print(",");
+        Serial.print(isMaxPower ? 1 : 0);
+        Serial.print(",");
+        Serial.println(raw);
     }
-
-    // Test speed calculation:
-    // 50ms delay * 100 steps = 5 seconds to ramp from 0 to 100%
-    delay(50); 
 }
