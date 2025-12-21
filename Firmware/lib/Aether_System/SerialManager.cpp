@@ -35,12 +35,16 @@ void SerialManager::streamTelemetry() {
         // Get data directly from FSM getters
         float dist = fsm->getRawDistance();
         float pwm = fsm->getPWMDuty();
+        float target = Config::Control::TARGET_ADC; 
 
-        // CSV Format for Plotter
-        Serial.print(millis());
-        Serial.print(",");
-        Serial.print((int)dist); 
-        Serial.print(",");
+        Serial.print(">Raw:");     
+        Serial.print((int)dist);
+        
+        Serial.print(",Target:");   
+        Serial.print((int)target);
+        
+        Serial.print(",PWM:"); 
+
         Serial.println((int)(pwm * 4095)); // Scaled for graph visibility
     }
 }
