@@ -4,18 +4,18 @@
 %% Physical Plant (Lumped)
 mass = 0.007;
 g = 9.81;
-x_eq = 0.03;
-R_coil = 28.57;
+x_eq = 0.02;
+R_coil = 34;
 L_coil = 0.1;
 
 %% Magnetic Properties
 m_mag_val = 0.1511; 
-core_amp_factor = 40.0;
+core_amp_factor = 50;
 
 %% Coil Geometry
 geom_R1 = 0.006;
-geom_R2 = 0.0145;
-geom_L = 0.02;
+geom_R2 = 0.013;
+geom_L = 0.019;
 geom_N = 1250;
 mu0_val = 4*pi*1e-7;
 
@@ -23,13 +23,14 @@ mu0_val = 4*pi*1e-7;
 V_supply = 3.3;
 Hall_Sens_mV_G = 1.4; 
 Sensor_Offset = 0.01;
-V_zero_theoretical = 1.65;
+V_zero_theoretical = 1.5856;
 ADC_max = 4095;
 V_ref = 3.3;
 PWM_max = 1023;
 
 
 %% Control System Targets & Initial Gains
+eq_current = 2053.37;
 Ts = 1 / 5000;
 Kp_config = 101.85;
 Ki_config = 509.24;

@@ -6,8 +6,8 @@
 | Parameter | Value | Unit | Description |
 | :--- | :--- | :--- | :--- |
 | Mass | `0.007` | kg | Mass of the Angel |
-| Equilibrium Distance | `0.03` | m | Target air gap |
-| Coil Resistance | `28.57` | Ohm | Electromagnet DC resistance |
+| Equilibrium Distance | `0.02` | m | Target air gap |
+| Coil Resistance | `34` | Ohm | Electromagnet DC resistance |
 | Dipole Moment | `0.1511` | A·m² | Magnetic Moment |
 
 ## Control Settings

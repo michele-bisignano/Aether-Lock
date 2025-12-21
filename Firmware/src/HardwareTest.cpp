@@ -46,7 +46,7 @@ void loop() {
         if (cmd == '1') {
             // AVVIO TEST
             testRunning = true;
-            currentPwm = 0.54f; // Parte dal 100%
+            currentPwm = 0.40f; // Parte dal 100%
             lastStepTime = millis();
             hal.setCoilPower(currentPwm);
             hal.setWarningLed(true);
@@ -73,7 +73,7 @@ void loop() {
         if (millis() - lastStepTime > 1000) {
             lastStepTime = millis();
             
-            currentPwm -= 0.0001f; // Scende di 0.001 (0.1%)
+            currentPwm += 0.01f; // Scende di 0.001 (0.1%)
             
             // Sicurezza: non andare sotto zero
             if (currentPwm < 0.0f) {

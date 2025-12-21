@@ -164,6 +164,7 @@ PWM_max = {pwm_max};
 
 
 %% Control System Targets & Initial Gains
+eq_current = {ctrl['setpoints']['target_adc_value']};
 Ts = 1 / {ctrl['loop_frequency_hz']};
 Kp_config = {ctrl['pid_gains']['kp']};
 Ki_config = {ctrl['pid_gains']['ki']};
