@@ -16,14 +16,14 @@ namespace Config {
     namespace Control {
         constexpr float LOOP_FREQ_HZ = 5000;
         constexpr float LOOP_PERIOD_S = 1.0f / 5000;
-        constexpr int FILTER_SIZE = 10;
+        constexpr int FILTER_SIZE = 15;
         constexpr unsigned long TELEMETRY_MS = 50;
 
         // Raw ADC Setpoints
-        constexpr float TARGET_ADC = 2053.37;
+        constexpr float TARGET_ADC = 1845;
         constexpr float IDLE_THRESHOLD = 54;
-        constexpr float SAFETY_MIN_ADC = 1950;
-        constexpr float SAFETY_MAX_ADC = 2406;
+        constexpr float SAFETY_MIN_ADC = 700;
+        constexpr float SAFETY_MAX_ADC = 2806;
         
         // Safety Constants
         constexpr unsigned long FALL_TIMEOUT_MS = 1000;

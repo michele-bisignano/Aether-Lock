@@ -30,7 +30,7 @@ PWM_max = 1023;
 
 
 %% Control System Targets & Initial Gains
-eq_current = 2053.37;
+eq_current = 1845;
 Ts = 1 / 5000;
 Kp_config = 101.85;
 Ki_config = 509.24;
