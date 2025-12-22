@@ -37,7 +37,7 @@
     },
 
     "setpoints": {
-    "target_adc_value": 1845,
+    "target_adc_value": 2053,
     "idle_threshold_adc": 54,
     "safety_min_adc": 700,
     "safety_max_adc": 2806

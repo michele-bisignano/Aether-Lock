@@ -26,7 +26,7 @@ unsigned long lastStepTime = 0;
 unsigned long startTime = 0;
 const int STEP_DELAY_MS = 500;      // Increment rate (5 times per second)
 const float KP_INCREMENT = 0.0001f; // Fine adjustment step
-const float GRAPH_SCALE = 1000000.0f; // mmultiplier for Kp telemetry
+const float GRAPH_SCALE = 1000000.0f; // Multiplier for Kp telemetry to see it on graph
 
 void setup() {
     Serial.begin(115200);
@@ -49,16 +49,18 @@ void loop() {
     // 1. Sensor Reading & Filtering
     int raw = hal.readSensorRaw();
     float filtered = filter.process((float)raw);
+    float currentOutput = 0.0f; // Default 0% (Safe state)
     
     // Target value from Config (ensure this matches your updated JSON!)
     float target = Config::Control::TARGET_ADC;
+
+    // Automatic Start Logic (Optional demo start)
+
     if (!tuningActive && millis() - startTime > 5000) {
         tuningActive = true;
-        testKp = 0.0f; // Start from zero
-        pid.setKp(0.0f);
-        pid.setKi(0.0f); // Proportional only for Ziegler-Nichols critical gain test
-        pid.setKd(0.0f);
-        Serial.println("\n>>> AUTO-TUNING STARTED. Keep your hand near the 's' key!");
+        testKp = 0.0f; 
+        pid.setKp(0.0f); pid.setKi(0.0f); pid.setKd(0.0f);
+        Serial.println("\n>>> AUTO-TUNING STARTED (Demo Mode).");
     }
 
     // 2. Command Handling
@@ -77,7 +79,7 @@ void loop() {
             tuningActive = true;
             testKp = 0.0f; // Start from zero
             pid.setKp(0.0f);
-            pid.setKi(0.0f); // Proportional only for Ziegler-Nichols critical gain test
+            pid.setKi(0.0f); // Proportional only for Ziegler-Nichols test
             pid.setKd(0.0f);
             Serial.println("\n>>> AUTO-TUNING STARTED. Keep your hand near the 's' key!");
         }
@@ -92,11 +94,20 @@ void loop() {
             pid.setKp(testKp);
         }
 
-        // Compute PID output (Simulating control loop for testing purposes)
-        float output = pid.compute(target, filtered);
-        hal.setCoilPower(output);
-        hal.setWarningLed(true); // Warning LED indicates active tuning
+        // Compute PID output
+        // PID returns a value between 0.0 and 1.0
+        currentOutput = pid.compute(target, filtered);
+
+        // Safety Clamp (Assicura che non superi mai il 100% matematico)
+        if (currentOutput > 1.0f) currentOutput = 1.0f;
+        if (currentOutput < 0.0f) currentOutput = 0.0f;
+
+        hal.setCoilPower(currentOutput);
+        hal.setWarningLed(true); 
     } else {
+        // Manual / Safe Mode
+        currentOutput = 0.0f;
+        hal.setCoilPower(0.0f);
         hal.setWarningLed(false);
     }
 
@@ -110,9 +121,12 @@ void loop() {
         Serial.print((int)filtered);
         Serial.print(",Target:");
         Serial.print((int)target);
-        Serial.print(",Kp_scaled:"); // Scaled up to be visible alongside ADC values
+        Serial.print(",Kp_scaled:"); 
         Serial.print(testKp * GRAPH_SCALE); 
-        Serial.print(",PWM_Out:");
-        Serial.println(tuningActive ? (pid.compute(target, filtered) * 4095) : 0);
+        
+        // MOSTRA PERCENTUALE (0% - 100%)
+        // Moltiplichiamo il valore normalizzato (0.0-1.0) per 100
+        Serial.print(",PWM_Percent:");
+        Serial.println(currentOutput * 100.0f);
     }
 }

@@ -22,6 +22,8 @@ The calibration curve defines the relationship between the magnet's distance and
 | 0cm | 0 | 3020.76 | 3.83 | 16 | ✅ Optimal |
 | 1cm | 10 | 2405.95 | 51.02 | 233 | ⚠️ High Jitter |
 | 1,5cm | 15 | 2106.83 | 15.88 | 66 | ✅ Stable |
+| 2cm | 20 | 2053.37 | 15.06 | 64 | ✅ Stable |
+| 2,5cm | 25 | 2015.61 | 10.96 | 43 | ✅ Stable |
 | 3cm | 30 | 1998.88 | 4.15 | 19 | ✅ Optimal |
 | inf | 999 | 1967.55 | 2.30 | 11 | 🎯 Bias |
 
