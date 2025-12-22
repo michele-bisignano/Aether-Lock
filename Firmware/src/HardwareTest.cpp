@@ -25,7 +25,7 @@ float testKp = 0.0f;
 unsigned long lastStepTime = 0;
 unsigned long startTime = 0;
 const int STEP_DELAY_MS = 500;      // Increment rate (5 times per second)
-const float KP_INCREMENT = 0.00001f; // Fine adjustment step
+const float KP_INCREMENT = 0.0001f; // Fine adjustment step
 const float GRAPH_SCALE = 1000000.0f; // mmultiplier for Kp telemetry
 
 void setup() {
