@@ -83,7 +83,8 @@
       "sensitivity_mv_per_gauss_datasheet": 1.4, 
       "quiescent_output_v": 1.5856,
       "sensitivity_m_per_v": 0.1445, 
-      "sensor_offset_from_coil_m": 0.01 
+      "sensor_offset_from_coil_m": 0.01,
+      "coil_sensor_coupling_adc": 355
     }
   }
 }

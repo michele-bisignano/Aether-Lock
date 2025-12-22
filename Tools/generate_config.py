@@ -105,6 +105,7 @@ namespace Config {{
 
         constexpr float HALL_ZERO_V = {sensor['quiescent_output_v']}; 
         constexpr float HALL_SENSITIVITY = {sensor['sensitivity_m_per_v']}; 
+        constexpr float HALL_COIL_COUPLING = {sensor['coil_sensor_coupling_adc']}; 
         
         // PWM Settings
         constexpr int PWM_FREQ = {hw['pwm_settings']['frequency_hz']};

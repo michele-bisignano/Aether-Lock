@@ -60,6 +60,7 @@ namespace Config {
 
         constexpr float HALL_ZERO_V = 1.5856; 
         constexpr float HALL_SENSITIVITY = 0.1445; 
+        constexpr float HALL_COIL_COUPLING = 355; 
         
         // PWM Settings
         constexpr int PWM_FREQ = 20000;
