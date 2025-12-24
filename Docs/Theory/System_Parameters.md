@@ -14,6 +14,6 @@
 | Parameter | Value | Unit | Description |
 | :--- | :--- | :--- | :--- |
 | Loop Frequency | `5000` | Hz | PID execution rate |
-| Kp | `101.85` | - | Proportional Gain |
-| Ki | `509.24` | - | Integral Gain |
-| Kd | `2.72` | - | Derivative Gain |
+| Kp | `0.0003` | - | Proportional Gain |
+| Ki | `0.0005` | - | Integral Gain |
+| Kd | `0.015` | - | Derivative Gain |

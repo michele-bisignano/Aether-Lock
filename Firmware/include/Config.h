@@ -31,9 +31,9 @@ namespace Config {
              
         
         namespace PID {
-            constexpr float KP = 101.85;
-            constexpr float KI = 509.24;
-            constexpr float KD = 2.72;
+            constexpr float KP = 0.0003;
+            constexpr float KI = 0.0005;
+            constexpr float KD = 0.015;
         }
 
         namespace Thermal {
@@ -60,7 +60,7 @@ namespace Config {
 
         constexpr float HALL_ZERO_V = 1.5856; 
         constexpr float HALL_SENSITIVITY = 0.1445; 
-        constexpr float HALL_COIL_COUPLING = 355; 
+        constexpr float HALL_COIL_COUPLING = 400; 
         
         // PWM Settings
         constexpr int PWM_FREQ = 20000;

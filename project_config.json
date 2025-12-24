@@ -31,9 +31,9 @@
     "telemetry_interval_ms": 50,
 
     "pid_gains": { 
-      "kp": 101.85, 
-      "ki": 509.24, 
-      "kd": 2.72
+      "kp": 0.0003, 
+      "ki": 0.0005, 
+      "kd": 0.0150 
     },
 
     "setpoints": {
@@ -84,7 +84,7 @@
       "quiescent_output_v": 1.5856,
       "sensitivity_m_per_v": 0.1445, 
       "sensor_offset_from_coil_m": 0.01,
-      "coil_sensor_coupling_adc": 355
+      "coil_sensor_coupling_adc": 348
     }
   }
 }
