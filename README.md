@@ -49,5 +49,5 @@ Detailed engineering reports and theoretical derivations are available in the `D
 | Document | Description |
 | :--- | :--- |
 | [**Mathematical Model**](Docs/Theory/Mathematical_Model.md) | Physical derivation, linearization, and Pole Placement design strategy. |
-| [**Hardware Characterization**](Hardware/Theory/Report.md) | Sensor calibration data, noise analysis (R), and actuator coupling analysis. |
+| [**Hardware Characterization**](Docs/Hardware/Design_and_Assembly.md) | Sensor calibration data, noise analysis (R), and actuator coupling analysis. |
 | [**System Parameters**](Docs/Theory/System_Parameters.md) | Auto-generated table of current physical constants and controller settings. |
