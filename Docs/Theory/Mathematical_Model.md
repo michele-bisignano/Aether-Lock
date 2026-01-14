@@ -151,8 +151,9 @@ graph LR
     
     Sat -.-> |Duty Cycle| FF
     
-    style PID fill:#f9f,stroke:#333,stroke-width:2px
-    style Plant fill:#ccf,stroke:#333,stroke-width:2px
+    %% Colori scuri con testo bianco per leggibilità
+    style PID fill:#8B0000,stroke:#333,stroke-width:2px,color:#fff
+    style Plant fill:#00008B,stroke:#333,stroke-width:2px,color:#fff
 ```
 
 ### 4.2 System Blocks Description
