@@ -7,180 +7,122 @@
 ---
 
 ## 1. Physical System Modeling
-
-The system consists of a ferromagnetic object (the "Angel") suspended by an electromagnet. The objective is to control the vertical axis $x$ (pointing downwards, origin at the coil face).
-
-Applying Newton's Second Law ($F = ma$):
+The system controls the vertical position $x$ of a ferromagnetic object (mass $m$) via electromagnetic attraction, countering gravity $g$.
+**Newton's Second Law:**
 
 $$ m \ddot{x}(t) = F_{gravity} - F_{magnetic}(x, i) $$
-
 $$ m \ddot{x}(t) = m g - F_m(x, i) $$
-
-To design a controller, we first need an accurate model of the magnetic force $F_m$.
 
 ---
 
 ## 2. Magnetic Force Modeling
-
-The magnetic force acting on a permanent magnet (dipole) aligned with the field is given by the gradient of the magnetic field:
-
+The force on a permanent magnet (dipole moment $\mathbf{m}$) is the gradient of the magnetic field $\mathbf{B}$:
 $$ \mathbf{F} = \nabla (\mathbf{m} \cdot \mathbf{B}) \implies F_x = m_{mag} \cdot \frac{dB_x}{dx} $$
 
-Where $m_{mag}$ is the Magnetic Dipole Moment of the object.
+### 2.1 Parameter Identification
+**Magnetic Dipole Moment ($m_{mag}$):**
+Derived analytically from Remanence ($B_r$) and Volume ($V$), referenced from [2].
 
-### 2.1 Magnetic Dipole Moment Identification
-
-To resolve the force equation, the magnitude of the Angel's magnetic dipole moment ($m_{mag}$) must be determined. Instead of experimental estimation, we derive this analytically using the magnet's volume and the material's remanence ($B_r$).
-
-**Data Source:**
-For standard Sintered Neodymium-Iron-Boron (NdFeB) magnets of **Grade N35**, the physical data is referenced from *Supermagnete* [2].
-*   **Remanence ($B_r$):** $1.2 \, T$ (Tesla)
-*   **Magnet Volume ($V$):** $1.58 \cdot 10^{-7} \, m^3$ (Measured)
-*   **Vacuum Permeability ($\mu_0$):** $4\pi \cdot 10^{-7} \, T\cdot m/A$
-
-**Calculation:**
 $$ m_{mag} = \frac{B_r \cdot V}{\mu_0} \approx \mathbf{0.1511} \, A \cdot m^2 $$
 
-This value is used as a constant in the simulation model.
+**Core Amplification ($\mu_{eff}$):**
+The ferromagnetic core amplifies the field compared to air. $\mu_{eff}$ is estimated by comparing theoretical air-core field ($B_{air}$) with the datasheets' holding force ($F_{hold} \approx 80N \to B_{real} \approx 1.3T$).
 
-### 2.2 Ground Truth (Thick Solenoid Model)
-Since the electromagnet has a significant thickness (inner radius $R_1 \neq$ outer radius $R_2$), we use the **Finite Thick Solenoid** model derived from the Biot-Savart law.
+$$ \mu_{eff} = \frac{B_{real}}{B_{air}} \approx 50 $$
 
-The axial magnetic field $B_x$ at distance $z$ (or $x$) is (Ref. [1], Eq. 12):
-
-$$ B_x(z) = \frac{\mu_0 N i}{2L (R_2 - R_1)} \left[ (z + L/2) \ln \left( \frac{R_2 + \sqrt{R_2^2 + (z+L/2)^2}}{R_1 + \sqrt{R_1^2 + (z+L/2)^2}} \right) - (z - L/2) \ln \left( \frac{R_2 + \sqrt{R_2^2 + (z-L/2)^2}}{R_1 + \sqrt{R_1^2 + (z-L/2)^2}} \right) \right] $$
-
-### 2.3 Core Amplification Factor ($\mu_{eff}$)
-The formula above calculates the field in a vacuum (air core). However, the P25/20 electromagnet has a ferromagnetic core which significantly amplifies the magnetic flux density. To match the real-world performance, we introduce an **Effective Permeability Factor** ($\mu_{eff}$).
-
-**Estimation via Reverse Engineering:**
-According to the datasheet, the holding force at contact is $F_{hold} \approx 80\,N$. Calculating the theoretical field in air ($B_{air}$) and comparing it with the field required to generate 80N ($B_{real} \approx 1.3 T$), we estimate an amplification factor:
-
-$$ \mu_{eff} \approx 50 $$
-
-In the MATLAB model, the theoretical field is multiplied by this factor to obtain the true force.
-
-### 2.4 Exact Force Derivation (The Gradient)
-Combining the gradient of the amplified field with the dipole moment, the explicit force equation used for parameter identification is:
+### 2.2 Ground Truth Model (Thick Solenoid)
+For accurate simulation, we use the **Biot-Savart law** for a finite thick solenoid (inner radius $R_1$, outer $R_2$, length $L$), amplified by $\mu_{eff}$ [1]:
 
 $$ F_{magn} = -\mu_{eff} \cdot \frac{I\,N\,m_{\mathrm{mag}}\,\mu _{0}}{2\,L\,\left(R_{1}-R_{2}\right)} \left[\ln\left(\frac{R_{2}+\sqrt{{R_{2}}^2+{\left(\frac{L}{2}+z\right)}^2}}{R_{1}+\sqrt{{R_{1}}^2+{\left(\frac{L}{2}+z\right)}^2}}\right)-\ln\left(\frac{R_{2}+\sqrt{{\left(\frac{L}{2}-z\right)}^2+{R_{2}}^2}}{R_{1}+\sqrt{{\left(\frac{L}{2}-z\right)}^2+{R_{1}}^2}}\right) + \dots \right] $$
 
-*(Note: The full derivative expansion is handled symbolically in [identify_physics.m](../../Simulation/MATLAB/identify_physics.m)).*
+*(Full derivative implementation available in `identify_physics.m`)*.
 
-### 2.5 Simplified Design Model
-For the control algorithm design and real-time execution, we approximate this complex behavior around the operating point using a Power Law model:
+### 2.3 Simplified Control Model
+For real-time control, the complex model is approximated by a local Power Law fitted to the ground truth:
 
 $$ F_m(x, i) \approx K_{mag} \frac{i(t)}{x(t)^n} $$
 
-**Justification:**
-1.  **Linearity with Current ($i$):** Valid for permanent magnets (Dipole interaction).
-2.  **Effective Exponent ($n$):** By fitting this model to the ground truth data around the equilibrium point, the parameter $n$ captures the **effective decay rate**, implicitly compensating for the coil's geometry.
+*   **Linearity ($i$):** Valid for permanent dipole interaction.
+*   **Exponent ($n$):** Captures effective field decay (geometry compensation).
 
 ---
 
 ## 3. Equilibrium & Linearization
-
-Substituting the simplified model into Newton's law:
-
+Substituting the simplified model into dynamics:
 $$ m \ddot{x} = m g - K_{mag} \frac{i}{x^n} $$
 
-### 3.1 Equilibrium Point
-At equilibrium ($\ddot{x} = 0$, $x = \bar{x}$), the required current $\bar{i}$ is:
-
+### 3.1 Equilibrium
+At operating point ($\ddot{x} = 0$, $x = \bar{x}$), the bias current $\bar{i}$ is:
 $$ \bar{i} = \frac{m g \bar{x}^n}{K_{mag}} $$
 
-### 3.2 Linearization (Taylor Expansion)
-Expanding around $(\bar{x}, \bar{i})$:
-
+### 3.2 Linearization (Small Signal)
+Taylor expansion around $(\bar{x}, \bar{i})$ yields the linear ODE:
 $$ m \ddot{\tilde{x}} = \left( n \frac{mg}{\bar{x}} \right) \tilde{x} - \left( \frac{mg}{\bar{i}} \right) \tilde{i} $$
 
 Dividing by $m$:
-
 $$ \ddot{\tilde{x}} = \left( \frac{n g}{\bar{x}} \right) \tilde{x} - \left( \frac{g}{\bar{i}} \right) \tilde{i} $$
 
 ### 3.3 Transfer Function
-Applying Laplace Transform:
+Laplace transform ($G(s) = X(s)/I(s)$):
+$$ s^2 X(s) - \frac{ng}{\bar{x}} X(s) = - \frac{g}{\bar{i}} I(s) \implies G(s) = \frac{- \frac{g}{\bar{i}}}{s^2 - \frac{ng}{\bar{x}}} $$
 
-$$ s^2 X(s) - \frac{ng}{\bar{x}} X(s) = - \frac{g}{\bar{i}} I(s) $$
-
-The Open-Loop Transfer Function $G(s) = \frac{X(s)}{I(s)}$ is:
-
-$$ G(s) = \frac{- \frac{g}{\bar{i}}}{s^2 - \frac{ng}{\bar{x}}} $$
-
-**Stability Analysis:**
-The poles are at $s = \pm \sqrt{\frac{ng}{\bar{x}}}$. Since one pole is real and positive, the system is **Open-Loop Unstable**.
-
-### 3.4 Electrical Dynamics & Assumptions
-The complete system involves an electrical subsystem (the coil inductance $L_{coil}$ and resistance $R_{coil}$). The relationship between voltage $V$ and current $i$ is:
-
-$$ V(t) = R_{coil} i(t) + L_{coil} \frac{di}{dt} + K_e \dot{x} $$
-
-However, for the control design, we apply two simplifications:
-1.  **Time Scale Separation:** The electrical time constant $\tau_e = L_{coil}/R_{coil}$ is significantly faster than the mechanical time constant of the levitating mass. We assume the current follows the PWM voltage command almost instantaneously.
-2.  **Power Stability:** A large bulk capacitor ($1000\mu F$) is placed on the power rail. This does not alter the transfer function order but ensures that the supply voltage $V_{bus}$ remains constant during PWM switching, validating the linear relationship between Duty Cycle and Average Voltage.
+**Stability:** Poles at $s = \pm \sqrt{\frac{ng}{\bar{x}}}$. One positive real pole $\to$ **Open-Loop Unstable**.
 
 ---
 
-## 4. Control System Architecture
-
-Based on the linearized model, the complete control loop structure is defined. This architecture matches the firmware implementation (SISO feedback loop with Feedforward compensation).
-
-### 4.1 Block Diagram
-The system operates as a closed-loop regulator where the Reference ($r$) is the target ADC value (Distance).
+## 4. Control Architecture
+**System Parameters:** [View Table](System_Parameters.md)
 
 ```mermaid
 graph LR
-    R[Target Setpoint] --> Sum((+))
-    Sum --> |Error| PID[PID Controller]
-    PID --> |PWM Duty| Sat[Saturation 0-1]
+    R[Target] --> Sum((+))
+    Sum --> |e| PID[PID]
+    PID --> |u| Sat[Sat 0-1]
     
     subgraph Firmware
     Sat --> FF_Sum((+))
-    FF[Coil-Sensor Coupling] --> |Feedforward| FF_Sum
+    FF[Coil Coupling] --> |Feedforward| FF_Sum
     end
     
     subgraph Hardware
-    FF_Sum --> Driver[MOSFET & Coil]
-    Driver --> Plant[Magnetic Levitation Plant]
-    Plant --> Sensor[Hall Effect Sensor]
+    FF_Sum --> Driver[Driver]
+    Driver --> Plant[MagLev Plant]
+    Plant --> Sensor[Hall Sensor]
     end
     
-    Sensor --> ADC[ADC Read]
-    ADC --> Filter[Moving Average Filter]
-    Filter --> |Measured Value| Sum
+    Sensor --> ADC[ADC]
+    ADC --> Filter[Filter]
+    Filter --> |y| Sum
+    Sat -.-> |u| FF
     
-    Sat -.-> |Duty Cycle| FF
-    
-    %% Colori scuri con testo bianco per leggibilità
-    style PID fill:#8B0000,stroke:#333,stroke-width:2px,color:#fff
-    style Plant fill:#00008B,stroke:#333,stroke-width:2px,color:#fff
+    style PID fill:#8B0000,stroke:#333,color:#fff
+    style Plant fill:#00008B,stroke:#333,color:#fff
 ```
 
-### 4.2 System Blocks Description
-
-1.  **Controller $C(s)$:** A Discrete PID controller (backward Euler integration) tasked with stabilizing the unstable pole.
-    *   *Inputs:* Error $e[k] = r - y[k]$.
-    *   *Output:* Duty Cycle $u[k] \in [0, 1]$.
-
-2.  **Actuator (Driver):** A logic-level MOSFET driving the solenoid.
-    *   Gain: $K_{act} = V_{supply} / R_{coil}$ [A/Duty].
-
-3.  **Plant $G(s)$:** The linearized magnetic suspension model derived in Sec 3.3.
-    *   Input: Current $i(t)$.
-    *   Output: Position $x(t)$.
-
-4.  **Sensor $H(s)$:** The SS49E Hall Effect sensor.
-    *   Gain: $K_{sens} \approx \Delta ADC / \Delta x$ [ADC/m].
-    *   **Filter:** A Moving Average Filter reduces measurement noise $\sigma_n$.
-
-5.  **Feedforward Compensation:**
-    *   Since the sensor is physically coupled to the coil, the coil's own field distorts the reading.
-    *   The firmware subtracts this disturbance: $y_{clean} = y_{raw} + (K_{coupling} \cdot u[k])$.
+**Block Definitions:**
+*   **Controller:** Discrete PID (Backward Euler). Inputs: $e[k]$. Output: Duty $u[k]$.
+*   **Plant:** Linearized model $G(s)$. Gains derived from MATLAB identification ($k_x, k_i$).
+*   **Feedforward:** Compensates for sensor-coil coupling: $y_{clean} = y_{raw} + (K_{coupling} \cdot u[k])$.
 
 ---
 
+## 5. Controller Design (Pole Placement)
+Gains are derived analytically to stabilize the plant by imposing target closed-loop dynamics.
 
----
+### 5.1 Characteristic Equation
+$$ 1 + C(s)G(s) = 0 \implies 1 + \left( \frac{K_d s^2 + K_p s + K_i}{s} \right) \left( \frac{-k_i}{m s^2 - k_x} \right) = 0 $$
+$$ m s^3 + (k_i K_d) s^2 + (k_i K_p - k_x) s + (k_i K_i) = 0 $$
+
+### 5.2 Target Dynamics
+Target polynomial with bandwidth $\omega_c > \sqrt{k_x/m}$ and damping $\zeta \approx 0.707$:
+$$ P_{target}(s) = (s + p_{real}) (s^2 + 2\zeta\omega_c s + \omega_c^2) $$
+
+### 5.3 Analytical Gains
+Equating coefficients yields the tuning formulas:
+
+1.  **Derivative ($K_d$):** $$ K_d = \frac{m \cdot (2\zeta\omega_c + p_{real})}{k_i} $$
+2.  **Proportional ($K_p$):** $$ K_p = \frac{m (\omega_c^2 + 2\zeta\omega_c p_{real}) + k_x}{k_i} $$
+3.  **Integral ($K_i$):** $$ K_i = \frac{m \cdot \omega_c^2 \cdot p_{real}}{k_i} $$
 
 ## References
 1.  Fuso, F. (2015). *Campo magnetico prodotto da un solenoide*. Dipartimento di Fisica, Università di Pisa. [Online PDF](https://osiris.df.unipi.it/~fuso/dida/solenoide.pdf)
