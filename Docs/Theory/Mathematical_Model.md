@@ -110,6 +110,75 @@ $$ G(s) = \frac{- \frac{g}{\bar{i}}}{s^2 - \frac{ng}{\bar{x}}} $$
 **Stability Analysis:**
 The poles are at $s = \pm \sqrt{\frac{ng}{\bar{x}}}$. Since one pole is real and positive, the system is **Open-Loop Unstable**.
 
+### 3.4 Electrical Dynamics & Assumptions
+The complete system involves an electrical subsystem (the coil inductance $L_{coil}$ and resistance $R_{coil}$). The relationship between voltage $V$ and current $i$ is:
+
+$$ V(t) = R_{coil} i(t) + L_{coil} \frac{di}{dt} + K_e \dot{x} $$
+
+However, for the control design, we apply two simplifications:
+1.  **Time Scale Separation:** The electrical time constant $\tau_e = L_{coil}/R_{coil}$ is significantly faster than the mechanical time constant of the levitating mass. We assume the current follows the PWM voltage command almost instantaneously.
+2.  **Power Stability:** A large bulk capacitor ($1000\mu F$) is placed on the power rail. This does not alter the transfer function order but ensures that the supply voltage $V_{bus}$ remains constant during PWM switching, validating the linear relationship between Duty Cycle and Average Voltage.
+
+---
+
+## 4. Control System Architecture
+
+Based on the linearized model, the complete control loop structure is defined. This architecture matches the firmware implementation (SISO feedback loop with Feedforward compensation).
+
+### 4.1 Block Diagram
+The system operates as a closed-loop regulator where the Reference ($r$) is the target ADC value (Distance).
+
+```mermaid
+graph LR
+    R[Target Setpoint] --> Sum((+))
+    Sum --> |Error| PID[PID Controller]
+    PID --> |PWM Duty| Sat[Saturation 0-1]
+    
+    subgraph Firmware
+    Sat --> FF_Sum((+))
+    FF[Coil-Sensor Coupling] --> |Feedforward| FF_Sum
+    end
+    
+    subgraph Hardware
+    FF_Sum --> Driver[MOSFET & Coil]
+    Driver --> Plant[Magnetic Levitation Plant]
+    Plant --> Sensor[Hall Effect Sensor]
+    end
+    
+    Sensor --> ADC[ADC Read]
+    ADC --> Filter[Moving Average Filter]
+    Filter --> |Measured Value| Sum
+    
+    Sat -.-> |Duty Cycle| FF
+    
+    style PID fill:#f9f,stroke:#333,stroke-width:2px
+    style Plant fill:#ccf,stroke:#333,stroke-width:2px
+```
+
+### 4.2 System Blocks Description
+
+1.  **Controller $C(s)$:** A Discrete PID controller (backward Euler integration) tasked with stabilizing the unstable pole.
+    *   *Inputs:* Error $e[k] = r - y[k]$.
+    *   *Output:* Duty Cycle $u[k] \in [0, 1]$.
+
+2.  **Actuator (Driver):** A logic-level MOSFET driving the solenoid.
+    *   Gain: $K_{act} = V_{supply} / R_{coil}$ [A/Duty].
+
+3.  **Plant $G(s)$:** The linearized magnetic suspension model derived in Sec 3.3.
+    *   Input: Current $i(t)$.
+    *   Output: Position $x(t)$.
+
+4.  **Sensor $H(s)$:** The SS49E Hall Effect sensor.
+    *   Gain: $K_{sens} \approx \Delta ADC / \Delta x$ [ADC/m].
+    *   **Filter:** A Moving Average Filter reduces measurement noise $\sigma_n$.
+
+5.  **Feedforward Compensation:**
+    *   Since the sensor is physically coupled to the coil, the coil's own field distorts the reading.
+    *   The firmware subtracts this disturbance: $y_{clean} = y_{raw} + (K_{coupling} \cdot u[k])$.
+
+---
+
+
 ---
 
 ## References
