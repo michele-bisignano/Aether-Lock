@@ -12,7 +12,7 @@ This document lists all the hardware components required to build the Aether-Loc
 | **Power Supply** | 12V 2A DC Adapter | 1 | [Link Aliexpress](https://it.aliexpress.com/item/4000521124523.html) |
 | **Protection** | Diode 1N4007 (Flyback protection) | 1 | Arduino Kit |
 | **Resistors** | 10kΩ (Pull-down) x2, 1kΩ (Filter) x1, 220Ω (LED) x2 | 1 set |  Arduino Kit |
-| **Capacitor** | 100nF | 1 set |  Arduino Kit |
+| **Capacitor** | 100nF, 1000uF | 1 set |  Arduino Kit |
 | **Levitating Object** | Neodymium Magnet (Permanent Magnet) | 1 | Small & Strong magnet |
 
 ## Assembly Notes

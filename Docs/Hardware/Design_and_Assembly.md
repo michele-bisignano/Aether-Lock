@@ -10,25 +10,13 @@ The circuit is divided into three stages: Power (12V), Logic (5V/3.3V), and Sens
 *   **[Download Schematic PDF](../../Hardware/Schematics/Aether_Lock_Schematic_v1.pdf)**
 
 ---
-
 ## 📦 Bill of Materials (BOM)
 
-### Core Components
-| Component | Specification | Function |
-| :--- | :--- | :--- |
-| **MCU** | ESP32 DevKit V1 (WROOM) | 240MHz Dual Core Controller. Handles PID loop and Safety FSM. |
-| **Actuator** | 12V Solenoid (P25/20) | Generates the magnetic field. High inductance stabilizes current. |
-| **Driver** | IRLZ44N MOSFET | Logic-Level (3.3V gate) switch. Low $R_{DS(on)}$ minimizes heat. |
-| **Sensor** | SS49E Hall Effect | Linear ratiometric sensor. $V_{out} \propto B_{field}$. |
+The system relies on critical components such as the **ESP32-WROOM**, **IRLZ44N MOSFET**, and **SS49E Linear Hall Sensor**.
 
-### Power & Safety
-| Component | Specification | Function |
-| :--- | :--- | :--- |
-| **Buck Converter** | LM2596 | Efficiently steps down 12V $\to$ 5V for the ESP32. |
-| **Flyback Diode** | 1N4007 | Protects the MOSFET from voltage spikes when PWM turns off. |
-| **Bulk Capacitor** | 1000µF 25V | Stabilizes the 12V rail against PWM-induced voltage sags. |
-| **Warning LED** | Red LED + 330 $\Omega$ | Visual indicator for thermal warning or error state. |
-
+> **Shopping List:** The detailed list of all required parts, along with sourcing links and specifications, is maintained in a dedicated file to ensure version control.
+>
+> 📄 **[Open BOM.md](./BOM.md)**
 ---
 
 ## 🔬 Signal Conditioning

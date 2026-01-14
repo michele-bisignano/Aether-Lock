@@ -3,7 +3,7 @@
 ![Language](https://img.shields.io/badge/language-C%2B%2B17-blue.svg)
 ![Platform](https://img.shields.io/badge/platform-ESP32_WROOM-green.svg)
 ![Method](https://img.shields.io/badge/method-Model--Based-orange)
-![License](https://img.shields.io/badge/license-MIT-lightgrey.svg)
+![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)
 
 **Aether-Lock** is a high-precision, closed-loop electromagnetic suspension system designed with a **Firmware-First** and **Model-Based** engineering approach.
 It stabilizes an inherently unstable system (magnetic levitation) using a custom discrete PID controller running at 5kHz on an ESP32-S2.
@@ -13,44 +13,30 @@ It stabilizes an inherently unstable system (magnetic levitation) using a custom
 ## 🚀 Key Engineering Features
 
 ### 1. Model-Based Design
-Instead of heuristic tuning, the control parameters were derived from a physical model.
-*   **System Identification:** The magnetic force law $F \propto i/x^n$ was identified via **MATLAB** regression on experimental data.
-*   **Linearization:** The unstable plant was linearized around the operating point using Taylor expansion to derive stiffness ($k_x$) and current gain ($k_i$).
-*   **Pole Placement:** PID gains were calculated analytically to place closed-loop poles for a damping factor $\zeta \approx 0.707$.
+Control parameters were derived analytically from physical modeling.
+*   **System Identification:** The magnetic force law $F \propto i/x^n$ was identified via [**MATLAB Regression Scripts**](Simulation/MATLAB/identify_physics.m) on experimental data.
+*   **Linearization & Tuning:** PID gains were calculated via [**Pole Placement**](Simulation/MATLAB/design_pid.m) to ensure a damping factor $\zeta \approx 0.707$.
+*   **Theory Documentation:** See [**Mathematical Model & Design**](Docs/Theory/Mathematical_Model.md).
 
 ### 2. Single Source of Truth (SSOT) Architecture
-The project avoids "magic numbers" in the code.
-*   **`project_config.json`**: A central configuration file holding physical constants, pinouts, and safety limits.
-*   **Automation:** A Python script (`Tools/generate_config.py`) automatically generates the C++ headers (`Config.h`) and MATLAB simulation parameters (`load_params.m`) before every build, ensuring mathematical consistency.
+The project enforces consistency across Firmware, Simulation, and Documentation.
+*   [**`project_config.json`**](project_config.json): The central registry for physical constants, pinouts, and safety limits.
+*   [**`Tools/generate_config.py`**](Tools/generate_config.py): A build script that auto-generates C++ headers and MATLAB variables from the JSON.
 
 ### 3. Advanced Control Logic
-*   **Feedforward Compensation:** Real-time cancellation of the sensor-coil electromagnetic coupling interference.
-*   **Thermal Protection:** A software-based thermal model estimates coil temperature in real-time and triggers an emergency shutdown to prevent overheating.
-*   **State Machine:** A robust FSM handles system states (`IDLE`, `LEVITATING`, `ERROR`) for safe operation.
-
+*   **Feedforward Compensation:** Real-time cancellation of the sensor-coil electromagnetic coupling.
+    *   *Implementation:* [StateMachine.cpp](Firmware/lib/Aether_System/StateMachine.cpp)
+*   **Thermal Protection:** A software-based thermal model estimates coil temperature.
+    *   *Implementation:* [ThermalGuard.cpp](Firmware/lib/Aether_System/ThermalGuard.cpp)
 ---
 
-## 🛠️ System Architecture
+## 🛠️ Hardware & Wiring
 
-### 🔌 Hardware Design
+The system is built on the ESP32 WROOM architecture, featuring a custom power stage for the solenoid and signal conditioning for the Hall sensor.
 
-The circuit is designed using **EasyEDA**. It includes the power stage (12V), the logic stage (5V/3.3V), and the signal conditioning for the Hall Sensor.
+For detailed schematics, the complete Bill of Materials (BOM), and assembly instructions, please refer to the dedicated documentation:
 
-<!-- Inserisci qui l'immagine del tuo schema se disponibile, altrimenti usa un placeholder -->
-[![Circuit Schematic](Hardware/Schematics/Aether_Lock_Schematic_v1.png)](Hardware/Schematics/Aether_Lock_Schematic_v1.pdf)
-
-*   **View Schematic:** [Schematic PDF](Hardware/Schematics/Aether_Lock_Schematic_v1.pdf)
-*   **Bill of Materials:** [BOM List](Hardware/BOM.md)
-
-**Circuit Overview:**
-*   **MCU:** ESP32-S2 DevKitM (240MHz Single Core).
-*   **Actuator:** IRLZ44N Logic-Level MOSFET driving a 12V Solenoid (P25/20) with Flyback diode protection.
-*   **Sensor:** SS49E Linear Hall Effect Sensor with an **RC Low-Pass Filter** ($R=1k\Omega, C=100nF$) to suppress PWM noise.
-*   **Power & Safety:**
-    *   **LM2596** Buck Converter for efficient 12V $\to$ 5V logic power.
-    *   **1000µF Capacitor** for bulk power decoupling and voltage sag prevention.
-    *   **Thermal Warning LED** triggered by the software model.
-
+👉 **[Read Hardware Design & Assembly Guide](Docs/Hardware/Design_and_Assembly.md)**
 ### Directory Structure
 The project follows a strict modular architecture separating Firmware, Hardware, and Simulation files.
 
