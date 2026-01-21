@@ -68,5 +68,5 @@ Detailed engineering reports and theoretical derivations are available in the `D
 | :--- | :--- |
 | [**Mathematical Model**](Docs/Theory/Mathematical_Model.md) | Physical derivation, linearization, and Pole Placement design strategy. |
 | [**Hardware Design & Assembly**](Docs/Hardware/Design_and_Assembly.md) | Schematics, BOM, and wiring guide for the ESP32 and Power Stage. |
-| [**Sensor & System Characterization**](Hardware/Measurements/Report.md) | Full report on sensor calibration, noise analysis (R), and coupling. |
+| [**Sensor & System Characterization**](Docs/Hardware/Hardware_Characterization.md) | Full report on sensor calibration, noise analysis (R), and coupling. |
 | [**System Parameters**](Docs/Theory/System_Parameters.md) | Auto-generated table of current physical constants and controller settings. |
