@@ -42,12 +42,31 @@ The project follows a strict modular architecture separating Firmware, Hardware,
 
 👉 [**View Full Repository Tree**](Docs/Project_Structure/repository_tree.md)
 
-## 📚 Technical Documentation
+---
+
+## 📊 Performance & Data Analysis
+
+The system was rigorously characterized before writing any control code. A complete Data Engineering pipeline was built to derive physical parameters from raw sensor data.
+
+### 1. Sensor Characterization (R)
+Raw data from the Hall Sensor was processed using **R (Tidyverse)** to filter outliers, quantify noise ($\sigma$), and identify thermal drift.
+*   **[View Sensor Analysis Report](Hardware/Measurements/Report.md)** (Includes Linearity, Noise & Drift plots)
+*   **[View R Analysis Scripts](Hardware/Measurements/Scripts/analysis.R)**
+
+### 2. Coil Coupling Compensation
+An experimental ramp test revealed that the coil's magnetic field interferes with the sensor reading (-355 ADC points at 100% PWM).
+This phenomenon was modeled and corrected via a **Feedforward term** in the control loop.
+*   **[View Coupling Analysis](Hardware/Measurements/Report.md#5-actuator-sensor-coupling-analysis)**
+
+---
+
+## 📚 Technical Documentation Index
 
 Detailed engineering reports and theoretical derivations are available in the `Docs` folder:
 
 | Document | Description |
 | :--- | :--- |
 | [**Mathematical Model**](Docs/Theory/Mathematical_Model.md) | Physical derivation, linearization, and Pole Placement design strategy. |
-| [**Hardware Characterization**](Docs/Hardware/Design_and_Assembly.md) | Sensor calibration data, noise analysis (R), and actuator coupling analysis. |
+| [**Hardware Design & Assembly**](Docs/Hardware/Design_and_Assembly.md) | Schematics, BOM, and wiring guide for the ESP32 and Power Stage. |
+| [**Sensor & System Characterization**](Hardware/Measurements/Report.md) | Full report on sensor calibration, noise analysis (R), and coupling. |
 | [**System Parameters**](Docs/Theory/System_Parameters.md) | Auto-generated table of current physical constants and controller settings. |
