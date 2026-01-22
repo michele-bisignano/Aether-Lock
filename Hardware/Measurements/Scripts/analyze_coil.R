@@ -1,108 +1,105 @@
-#' @title Aether-Lock: Coil-Sensor Coupling Analysis
-#' @author Michele Bisignano
-#' @description Analyzes the linear relationship between Coil PWM and Hall Sensor ADC readings.
-#'              Calculates the compensation factor for the firmware to cancel out EMI.
+# Aether-Lock: Coil-Sensor Coupling Analysis (Super Robust)
+# Author: Michele Bisignano
 
-# --- 1. LIBRARIES & CONFIGURATION ---
+# --- 0. ENVIRONMENT SETUP ---
+# In RStudio: Menu "Session" -> "Set Working Directory" -> "To Source File Location"
 library(tidyverse)
+library(readr)
 
-# Define paths
-INPUT_FILE  <- "../Data/Raw/coil_linearity_test.csv"
-OUTPUT_PLOT <- "../Output/coil_linearity_clean.png"
+# --- 1. PATH CONFIGURATION ---
+# Relative path from Scripts folder to Raw folder
+input_file  <- "../Data/Raw/coil_linearity_test.csv"
+output_plot <- "../Output/coil_linearity_clean.png"
 
-# Analysis Parameters
-RESIDUAL_THRESHOLD_SD <- 3  # Standard Deviations to define an outlier
-
-# --- 2. DATA ACQUISITION ---
-if (!file.exists(INPUT_FILE)) {
-  stop(paste("CRITICAL ERROR: File not found at", INPUT_FILE))
+# Verify file existence
+if (!file.exists(input_file)) {
+  stop(paste("❌ ERROR: File not found!", normalizePath(input_file, mustWork = FALSE)))
 }
 
-# Robust loading: attempts comma first, then semicolon
-df_raw <- read_csv(INPUT_FILE, show_col_types = FALSE)
+print(paste("📂 Reading file:", input_file))
 
-if (ncol(df_raw) < 3) {
-  message("Found unconventional delimiter. Retrying with semicolon...")
-  df_raw <- read_delim(INPUT_FILE, delim = ";", show_col_types = FALSE)
+# --- 2. LOADING DATA AS TEXT ---
+# Read EVERYTHING as characters (col_types = "c") to prevent R from guessing wrong types
+# Try comma first; if it fails, try semicolon
+data_raw <- read_delim(input_file, delim = ",", col_names = TRUE, col_types = cols(.default = "c"))
+
+if (ncol(data_raw) < 2) {
+  print("⚠️ Comma separator failed. Retrying with semicolon...")
+  data_raw <- read_delim(input_file, delim = ";", col_names = TRUE, col_types = cols(.default = "c"))
 }
 
-# Standardize Column Names
-# Expected format: [Time_ms, PWM_Percent, Raw_ADC]
-colnames(df_raw)[1:3] <- c("time_ms", "pwm_percent", "raw_adc")
+print("--- Columns found: ---")
+print(colnames(data_raw))
 
-# Data Type Enforcement & Cleaning
-df_processed <- df_raw %>%
-  mutate(across(c(pwm_percent, raw_adc), ~ as.numeric(as.character(.x)))) %>%
-  filter(!is.na(pwm_percent), !is.na(raw_adc))
+# --- 3. COLUMN SELECTION AND CLEANING ---
+# Search for the correct columns intelligently
+col_names <- colnames(data_raw)
+idx_pwm <- grep("PWM", col_names, ignore.case = TRUE)
+idx_adc <- grep("Raw", col_names, ignore.case = TRUE)
 
-message("✅ Data successfully loaded. Observation count: ", nrow(df_processed))
+if (length(idx_pwm) == 0 || length(idx_adc) == 0) {
+  # Fallback: If names are not found, use columns 2 and 3 by default
+  print("⚠️ Column names not found. Using columns 2 and 3 by default.")
+  idx_pwm <- 2
+  idx_adc <- 3
+} else {
+  idx_pwm <- idx_pwm[1] # Take the first match
+  idx_adc <- idx_adc[1]
+}
 
-# --- 3. STATISTICAL OUTLIER REMOVAL ---
-# We use a two-pass linear regression to identify and remove EMI spikes/voltage drops
-prelim_model <- lm(raw_adc ~ pwm_percent, data = df_processed)
-
-df_analysis <- df_processed %>%
+# Create a clean dataframe by renaming and converting types
+data_clean <- data_raw %>%
+  select(
+    PWM_Str = all_of(idx_pwm), 
+    ADC_Str = all_of(idx_adc)
+  ) %>%
   mutate(
-    predicted = predict(prelim_model),
-    residual  = raw_adc - predicted,
-    # Flag outliers based on Standard Deviation of residuals
-    is_outlier = abs(residual) > (sd(residual) * RESIDUAL_THRESHOLD_SD)
+    # Replace comma with period AND remove any potential spaces
+    PWM_Percent = as.numeric(gsub(",", ".", PWM_Str)),
+    Raw_ADC     = as.numeric(gsub(",", ".", ADC_Str))
+  ) %>%
+  # Remove rows that became NA (e.g., repeated headers or errors)
+  filter(!is.na(PWM_Percent) & !is.na(Raw_ADC))
+
+print(paste("✅ Valid rows found:", nrow(data_clean)))
+
+if (nrow(data_clean) < 10) {
+  stop("❌ ERROR: Too few valid data points after conversion. Check the CSV!")
+}
+
+# --- 4. OUTLIER ANALYSIS ---
+model_prelim <- lm(Raw_ADC ~ PWM_Percent, data = data_clean)
+
+data_aug <- data_clean %>%
+  mutate(
+    Predicted = predict(model_prelim),
+    Residual = Raw_ADC - Predicted,
+    # Remove points too far from the line (Voltage Sag or Errors)
+    Is_Outlier = abs(Residual) > 2 * sd(Residual)
   )
 
-df_clean <- df_analysis %>% filter(!is_outlier)
+data_final <- data_aug %>% filter(Is_Outlier == FALSE)
 
-message("📊 Outlier removal complete. Points removed: ", sum(df_analysis$is_outlier))
+# --- 5. FINAL CALCULATION ---
+model_final <- lm(Raw_ADC ~ PWM_Percent, data = data_final)
+coeffs <- coef(model_final)
 
-# --- 4. COUPLING FACTOR CALCULATION ---
-# Final model based on clean data
-final_model <- lm(raw_adc ~ pwm_percent, data = df_clean)
-coeffs      <- coef(final_model)
+slope <- coeffs["PWM_Percent"]
+coupling_factor <- slope * 100 # For 100% PWM
 
-slope     <- coeffs["pwm_percent"]      # ADC change per 1% PWM
-intercept <- coeffs["(Intercept)"]      # Sensor baseline (Coil OFF)
+print("========================================")
+print(paste(">>> COIL_SENSOR_COUPLING_ADC:", round(abs(coupling_factor), 0)))
+print("========================================")
 
-# The firmware requires the total delta from 0% to 100% PWM
-# Formula: Slope * 100
-total_coupling_factor <- round(abs(slope * 100), 0)
+# --- 6. PLOT ---
+p <- ggplot(data_aug, aes(x = PWM_Percent, y = Raw_ADC)) +
+  geom_point(aes(color = Is_Outlier), alpha = 0.5) +
+  geom_smooth(data = data_final, method = "lm", color = "green", se = FALSE) +
+  scale_color_manual(values = c("FALSE"="blue", "TRUE"="red")) +
+  labs(title = "Coil-Sensor Coupling Analysis",
+       subtitle = paste("Calculated Factor:", round(abs(coupling_factor), 0)),
+       x = "PWM %", y = "ADC Raw") +
+  theme_minimal()
 
-# --- 5. RESULTS REPORTING ---
-cat("\n==============================================\n")
-cat("       ANALYSIS RESULTS (Aether-Lock)         \n")
-cat("==============================================\n")
-cat(sprintf("Linear Slope:      %.4f ADC/%%\n", slope))
-cat(sprintf("Intercept (Bias):  %.2f ADC\n", intercept))
-cat(sprintf("R-Squared:         %.4f\n", summary(final_model)$r.squared))
-cat("----------------------------------------------\n")
-cat(sprintf(">>> COIL_SENSOR_COUPLING_ADC: %d\n", total_coupling_factor))
-cat("----------------------------------------------\n")
-cat("Copy the value above into your hardware JSON config.\n\n")
-
-# --- 6. VISUALIZATION ---
-plot_theme <- theme_minimal(base_size = 12) +
-  theme(
-    plot.title = element_text(face = "bold", size = 14),
-    panel.grid.minor = element_blank()
-  )
-
-p <- ggplot(df_analysis, aes(x = pwm_percent, y = raw_adc)) +
-  # Plot outliers in light red
-  geom_point(data = filter(df_analysis, is_outlier), 
-             color = "#e41a1c", alpha = 0.3, size = 1) +
-  # Plot valid data in dark blue
-  geom_point(data = filter(df_analysis, !is_outlier), 
-             color = "#377eb8", alpha = 0.6, size = 1.5) +
-  # Regression line
-  geom_smooth(data = df_clean, method = "lm", 
-              color = "#4daf4a", size = 1.2, se = FALSE) +
-  labs(
-    title = "Coil-Sensor Coupling Linearity Analysis",
-    subtitle = paste("Estimated Coupling:", total_coupling_factor, "ADC points @ 100% Duty Cycle"),
-    x = "PWM Duty Cycle [%]",
-    y = "Raw Sensor Reading [ADC]",
-    caption = paste("Outliers removed using", RESIDUAL_THRESHOLD_SD, "SD Residual Threshold")
-  ) +
-  plot_theme
-
-# Save output
-ggsave(OUTPUT_PLOT, plot = p, width = 9, height = 6, dpi = 300)
+ggsave(output_plot, plot = p, width = 8, height = 6)
 print(p)
