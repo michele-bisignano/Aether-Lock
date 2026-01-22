@@ -70,7 +70,7 @@ Aether-Lock/
 │        │   └── noise_analysis.png             # Generated plot: Sensor noise distribution
 │        └── README.md                          # Documentation of the experimental setup       
 │
-└── Simulation/                     # Model-Based Design (Digital Twin)
+└── Simulation/                     
     └── MATLAB/
         ├── calibrate_all.m                # Calculate Sensor Calibration and Core Factor.
         ├── design_pid.m                   # Calculate gains
