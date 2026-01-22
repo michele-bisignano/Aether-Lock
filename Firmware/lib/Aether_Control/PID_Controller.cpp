@@ -18,7 +18,7 @@ float PID_Controller::compute(float setpoint, float measured_value)
 {
     // 1. Calculate Error
     // Error is positive if we are below the setpoint (need to go up)
-    float error = setpoint - measured_value;
+    float error = measured_value- setpoint;
 
     // 2. Proportional Term
     // Provides immediate reaction to the error magnitude

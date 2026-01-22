@@ -20,9 +20,9 @@ MovingAverage filter(Config::Control::FILTER_SIZE);
 bool tuningActive = false;
 float testKp = 0.0f;
 unsigned long lastStepTime = 0;
-const int STEP_DELAY_MS = 500;       
-const float KP_INCREMENT = 0.0001f; 
-const float GRAPH_SCALE = 100000.0f; 
+const int STEP_DELAY_MS = 50;       
+const float KP_INCREMENT = 0.001f; 
+const float GRAPH_SCALE = 1000.0f; 
 
 void setup() {
     Serial.begin(115200);
@@ -34,56 +34,66 @@ void setup() {
     Serial.println("[a] -> START Auto-Tune (Increases Kp)");
     Serial.println("[s] -> STOP / Safety Off");
 }
-
 void loop() {
+    // 1. Sensor Reading & Filtering
     int raw = hal.readSensorRaw();
     float filtered = filter.process((float)raw);
     float currentOutput = 0.0f;
     float target = Config::Control::TARGET_ADC;
 
-    // Command Handling
+    // --- AUTO START (After 5 seconds) ---
+    static bool hasAutoStarted = false;
+    if (!tuningActive && !hasAutoStarted && millis() > 5000) {
+        hasAutoStarted = true;
+        tuningActive = true;
+        testKp = 0.0f;
+        lastStepTime = millis();
+        Serial.println("\n>>> AUTO-START: Tuning in 3... 2... 1...");
+    }
+
+    // 2. Manual Command Handling (remains as backup)
     if (Serial.available() > 0) {
         char cmd = Serial.read();
-        while(Serial.available()) Serial.read();
+        while(Serial.available()) Serial.read(); // Flush buffer
 
-        if (cmd == 's') {
+        if (cmd == 's') { // STOP
             tuningActive = false;
             testKp = 0.0f;
             pid.setKp(0.0f);
             hal.setCoilPower(0.0f);
-            Serial.println("\n>>> STOP. Gains reset.");
-        }
-        else if (cmd == 'a') {
-            tuningActive = true;
-            testKp = 0.0f;
-            pid.setKp(0.0f); pid.setKi(0.0f); pid.setKd(0.0f);
-            Serial.println("\n>>> TUNING STARTED.");
+            Serial.println("\n>>> MANUAL STOP.");
         }
     }
 
-    // Tuning Logic
+    // 3. Auto-Tuning Logic
     if (tuningActive) {
         if (millis() - lastStepTime > STEP_DELAY_MS) {
             lastStepTime = millis();
             testKp += KP_INCREMENT;
             pid.setKp(testKp);
         }
-
+        
+        // Compute PID
         currentOutput = pid.compute(target, filtered);
+        
+        // Safety Clamp
+        if (currentOutput > 1.0f) currentOutput = 1.0f;
+        if (currentOutput < 0.0f) currentOutput = 0.0f;
+
         hal.setCoilPower(currentOutput);
-        hal.setWarningLed(true); 
+        hal.setWarningLed(true);
     } else {
         hal.setCoilPower(0.0f);
         hal.setWarningLed(false);
     }
 
-    // Telemetria per Serial Plotter
+    // 4. Telemetry
     static unsigned long lastPrint = 0;
     if (millis() - lastPrint > 50) {
         lastPrint = millis();
         Serial.print(">Raw:"); Serial.print((int)filtered);
         Serial.print(",Target:"); Serial.print((int)target);
         Serial.print(",Kp_scaled:"); Serial.print(testKp * GRAPH_SCALE); 
-        Serial.print(",PWM_Percent:"); Serial.println(currentOutput * 100.0f);
+        Serial.print(",PWM_scaled:"); Serial.println(currentOutput * 1000.0f);
     }
 }

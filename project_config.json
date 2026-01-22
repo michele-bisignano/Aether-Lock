@@ -27,7 +27,7 @@
   "control_system": {
     "_description": "PID parameters and timing for Firmware and Simulink",
     "loop_frequency_hz": 5000,
-    "filter_window_size": 15, 
+    "filter_window_size": 30, 
     "telemetry_interval_ms": 50,
 
     "pid_gains": { 
@@ -37,7 +37,7 @@
     },
 
     "setpoints": {
-    "target_adc_value": 2096,
+    "target_adc_value": 1800,
     "idle_threshold_adc": 54,
     "safety_min_adc": 1726,
     "safety_max_adc": 2806
