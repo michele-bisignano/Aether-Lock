@@ -9,7 +9,8 @@
 Aether_HAL hal;
 bool running = false;
 float pwm = 0.0f;
-unsigned long lastT = 0;
+unsigned long lastTimestamp = 0;
+bool increasing = true;
 
 void setup() {
     Serial.begin(115200);
@@ -20,23 +21,59 @@ void setup() {
 }
 
 void loop() {
+    // 1. Handle Serial Commands
     if (Serial.available()) {
-        char c = Serial.read();
-        if (c == '1') { 
-            running = true; pwm = 0; 
-            Serial.println("Time_ms,PWM_Percent,Raw_ADC"); // CSV Header
+        char command = Serial.read();
+        
+        if (command == '1') { 
+            running = true; 
+            pwm = 0.0f; 
+            increasing = true; 
+            lastTimestamp = millis();
+            // Header for CSV logging
+            Serial.println("Time_ms,PWM_Percent,Raw_ADC"); 
         }
-        if (c == '0') { running = false; hal.setCoilPower(0); }
+        
+        if (command == '0') { 
+            running = false; 
+            hal.setCoilPower(0); 
+            Serial.println("STOPPED"); 
+        }
     }
 
-    if (running && millis() - lastT > 20) { // 50Hz
-        lastT = millis();
-        pwm += 0.002f; // Slow Ramp
-        if (pwm > 1.0f) { pwm = 1.0f; running = false; }
+    // 2. Execute Test Logic (50Hz Sampling Rate)
+    if (running && (millis() - lastTimestamp >= 20)) {
+        lastTimestamp = millis();
         
+        // Calculate PWM Ramp
+        if (increasing) {
+            pwm += 0.002f; // Ramp up (approx. 2 seconds to reach 100%)
+            if (pwm >= 1.0f) {
+                pwm = 1.0f;
+                increasing = false; // Reverse direction
+            }
+        } else {
+            pwm -= 0.002f; // Ramp down
+            if (pwm <= 0.0f) {
+                pwm = 0.0f;
+                running = false; // Test completed
+            }
+        }
+        
+        // Apply Hardware Output
         hal.setCoilPower(pwm);
-        Serial.print(millis()); Serial.print(",");
-        Serial.print(pwm * 100.0f); Serial.print(",");
+        
+        // Log Data in CSV format
+        Serial.print(millis());
+        Serial.print(",");
+        Serial.print(pwm * 100.0f, 2); // Print with 2 decimal places
+        Serial.print(",");
         Serial.println(hal.readSensorRaw());
+
+        // Handle Test Completion
+        if (!running) {
+            hal.setCoilPower(0);
+            Serial.println("FINISHED");
+        }
     }
 }

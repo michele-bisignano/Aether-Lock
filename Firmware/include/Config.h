@@ -20,7 +20,7 @@ namespace Config {
         constexpr unsigned long TELEMETRY_MS = 50;
 
         // Raw ADC Setpoints
-        constexpr float TARGET_ADC = 2153;
+        constexpr float TARGET_ADC = 2096;
         constexpr float IDLE_THRESHOLD = 54;
         constexpr float SAFETY_MIN_ADC = 1726;
         constexpr float SAFETY_MAX_ADC = 2806;
@@ -60,7 +60,7 @@ namespace Config {
 
         constexpr float HALL_ZERO_V = 1.5856; 
         constexpr float HALL_SENSITIVITY = 0.1445; 
-        constexpr float HALL_COIL_COUPLING = 801; 
+        constexpr float HALL_COIL_COUPLING = 828; 
         
         // PWM Settings
         constexpr int PWM_FREQ = 20000;

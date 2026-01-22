@@ -193,3 +193,90 @@ ggsave(filename = file.path(output_dir, "stability_drift_analysis.png"),
 print("=== EXPORT COMPLETE ===")
 print(paste("Tables saved in:", processed_dir, "and", output_dir))
 print(paste("Plots saved as PNG in:", output_dir))
+
+# ---- 2 TARGET VALUE ANALISYS ----
+
+# --- 1. CONFIGURATION ---
+INPUT_FILE  <- "../Data/Raw/setpoint_raw_data.csv"
+OUTPUT_DIR  <- "../Output"
+PLOT_FILE   <- file.path(OUTPUT_DIR, "setpoint_boxplot.png")
+
+if (!dir.exists(OUTPUT_DIR)) {
+  dir.create(OUTPUT_DIR, recursive = TRUE)
+}
+
+# --- 2. DATA ACQUISITION ---
+if (!file.exists(INPUT_FILE)) {
+  stop(paste("❌ Error: Input file not found at", INPUT_FILE))
+}
+
+# Use read_delim with semicolon delimiter
+# Note: col_names = TRUE if your CSV has a header (e.g., "Time;Raw_ADC")
+# Change to col_names = FALSE if it is just raw numbers
+df_raw <- read_delim(INPUT_FILE, delim = ";", show_col_types = FALSE, col_names = TRUE)
+
+# Safety check: Ensure the file has at least two columns
+if (ncol(df_raw) < 2) {
+  stop("❌ Error: The script expected at least 2 columns. Check your semicolon delimiter.")
+}
+
+# Target the second column and rename it to 'value'
+colnames(df_raw)[2] <- "value"
+
+# Ensure numeric format and remove potential NAs
+df_raw <- df_raw %>% 
+  mutate(value = as.numeric(as.character(value))) %>% 
+  filter(!is.na(value))
+
+# --- 3. OUTLIER REMOVAL (IQR METHOD) ---
+Q1  <- quantile(df_raw$value, 0.25)
+Q3  <- quantile(df_raw$value, 0.75)
+IQR <- Q3 - Q1
+
+lower_bound <- Q1 - 1.5 * IQR
+upper_bound <- Q3 + 1.5 * IQR
+
+# Filter data to keep only points within the bounds
+df_clean <- df_raw %>%
+  filter(value >= lower_bound & value <= upper_bound)
+
+# Calculate the Clean Mean
+clean_mean <- mean(df_clean$value)
+
+# --- 4. RESULTS REPORTING ---
+cat("\n========================================\n")
+cat("       DATA ANALYSIS REPORT             \n")
+cat("========================================\n")
+cat(sprintf("Input File:           %s\n", basename(INPUT_FILE)))
+cat(sprintf("Original Samples:     %d\n", nrow(df_raw)))
+cat(sprintf("Clean Samples:        %d\n", nrow(df_clean)))
+cat(sprintf("Outliers Removed:     %d\n", nrow(df_raw) - nrow(df_clean)))
+cat("----------------------------------------\n")
+cat(sprintf(">>> CALCULATED CLEAN MEAN: %.4f\n", clean_mean))
+cat("----------------------------------------\n\n")
+
+# --- 5. VISUALIZATION ---
+# Using x = "" to properly define the X-axis for geom_hline and annotations
+p <- ggplot(df_raw, aes(x = "", y = value)) +
+  # Main Boxplot
+  geom_boxplot(fill = "#377eb8", alpha = 0.7, 
+               outlier.color = "red", outlier.shape = 4) +
+  # Add a horizontal line for the clean mean (using linewidth instead of size)
+  geom_hline(yintercept = clean_mean, color = "darkgreen", 
+             linetype = "dashed", linewidth = 1) +
+  # Position text at x = 1 (the center of the boxplot)
+  annotate("text", x = 1, y = clean_mean, 
+           label = paste("Clean Mean:", round(clean_mean, 2)), 
+           color = "darkgreen", vjust = -1.5, fontface = "bold") +
+  labs(
+    title = "Setpoint Data Analysis",
+    subtitle = "Red 'X' markers indicate outliers. Dashed line represents the clean mean.",
+    y = "Sensor Reading (Raw ADC)",
+    x = ""
+  ) +
+  theme_minimal()
+
+# Save the plot with high resolution
+ggsave(PLOT_FILE, plot = p, width = 6, height = 8, dpi = 300)
+message("✅ Boxplot successfully saved to: ", PLOT_FILE)
+
