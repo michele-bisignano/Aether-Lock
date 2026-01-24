@@ -52,7 +52,7 @@ Substituting the simplified model into dynamics:
 $$ m \ddot{x} = m g - K_{mag} \frac{i}{x^n} $$
 
 ### 3.1 Equilibrium
-At operating point ($\ddot{x} = 0$, $x = \bar{x}$), the bias current $\bar{i}$ is:
+At operating point ( $\ddot{x} = 0$, $x = \bar{x}$ ), the bias current $\bar{i}$ is:
 $$ \bar{i} = \frac{m g \bar{x}^n}{K_{mag}} $$
 
 ### 3.2 Linearization (Small Signal)
@@ -66,8 +66,8 @@ $$ \ddot{\tilde{x}} = \left( \frac{n g}{\bar{x}} \right) \tilde{x} - \left( \fra
 ### 3.3 Transfer Function
 Laplace transform ($G(s) = X(s)/I(s)$):
 
-$$
-s^2 X(s) - \frac{ng}{\bar{x}} X(s) = - \frac{g}{\bar{i}} I(s) \implies G(s) = \frac{- \frac{g}{\bar{i}}}{s^2 - \frac{ng}{\bar{x}}}
+$$ 
+s^2 X(s) - \frac{ng}{\bar{x}} X(s) = - \frac{g}{\bar{i}} I(s) \implies G(s) = \frac{- \frac{g}{\bar{i}}}{s^2 - \frac{ng}{\bar{x}}} 
 $$
 
 **Stability:** Poles at $s = \pm \sqrt{\frac{ng}{\bar{x}}}$. One positive real pole $\to$ **Open-Loop Unstable**.
