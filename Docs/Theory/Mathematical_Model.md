@@ -63,8 +63,12 @@ Dividing by $m$:
 $$ \ddot{\tilde{x}} = \left( \frac{n g}{\bar{x}} \right) \tilde{x} - \left( \frac{g}{\bar{i}} \right) \tilde{i} $$
 
 ### 3.3 Transfer Function
+### 3.3 Transfer Function
 Laplace transform ($G(s) = X(s)/I(s)$):
-$$ s^2 X(s) - \frac{ng}{\bar{x}} X(s) = - \frac{g}{\bar{i}} I(s) \implies G(s) = \frac{- \frac{g}{\bar{i}}}{s^2 - \frac{ng}{\bar{x}}} $$
+
+$$
+s^2 X(s) - \frac{ng}{\bar{x}} X(s) = - \frac{g}{\bar{i}} I(s) \implies G(s) = \frac{- \frac{g}{\bar{i}}}{s^2 - \frac{ng}{\bar{x}}}
+$$
 
 **Stability:** Poles at $s = \pm \sqrt{\frac{ng}{\bar{x}}}$. One positive real pole $\to$ **Open-Loop Unstable**.
 
@@ -120,9 +124,14 @@ $$ P_{target}(s) = (s + p_{real}) (s^2 + 2\zeta\omega_c s + \omega_c^2) $$
 ### 5.3 Analytical Gains
 Equating coefficients yields the tuning formulas:
 
-1.  **Derivative ($K_d$):** $$ K_d = \frac{m \cdot (2\zeta\omega_c + p_{real})}{k_i} $$
-2.  **Proportional ($K_p$):** $$ K_p = \frac{m (\omega_c^2 + 2\zeta\omega_c p_{real}) + k_x}{k_i} $$
-3.  **Integral ($K_i$):** $$ K_i = \frac{m \cdot \omega_c^2 \cdot p_{real}}{k_i} $$
+**Derivative ($K_d$):**
+$$ K_d = \frac{m \cdot (2\zeta\omega_c + p_{real})}{k_i} $$
+
+**Proportional ($K_p$):**
+$$ K_p = \frac{m (\omega_c^2 + 2\zeta\omega_c p_{real}) + k_x}{k_i} $$
+
+**Integral ($K_i$):**
+$$ K_i = \frac{m \cdot \omega_c^2 \cdot p_{real}}{k_i} $$
 
 ## References
 1.  Fuso, F. (2015). *Campo magnetico prodotto da un solenoide*. Dipartimento di Fisica, Università di Pisa. [Online PDF](https://osiris.df.unipi.it/~fuso/dida/solenoide.pdf)
