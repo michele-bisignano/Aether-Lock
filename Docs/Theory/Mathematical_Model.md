@@ -17,7 +17,7 @@ $$ m \ddot{x}(t) = m g - F_m(x, i) $$
 
 ## 2. Magnetic Force Modeling
 The force on a permanent magnet (dipole moment $\mathbf{m}$) is the gradient of the magnetic field $\mathbf{B}$:
-$$ \mathbf{F} = \nabla (\mathbf{m} \cdot \mathbf{B}) \implies F_x = m_{mag} \cdot \frac{dB_x}{dx} $$
+$\mathbf{F} = \nabla (\mathbf{m} \cdot \mathbf{B}) \implies F_x = m_{mag} \cdot \frac{dB_x}{dx}$
 
 ### 2.1 Parameter Identification
 **Magnetic Dipole Moment ($m_{mag}$):**
@@ -40,7 +40,7 @@ $$ F_{magn} = -\mu_{eff} \cdot \frac{I\,N\,m_{\mathrm{mag}}\,\mu _{0}}{2\,L\,\le
 ### 2.3 Simplified Control Model
 For real-time control, the complex model is approximated by a local Power Law fitted to the ground truth:
 
-$$ F_m(x, i) \approx K_{mag} \frac{i(t)}{x(t)^n} $$
+$F_m(x, i) \approx K_{mag} \frac{i(t)}{x(t)^n}$
 
 *   **Linearity ($i$):** Valid for permanent dipole interaction.
 *   **Exponent ($n$):** Captures effective field decay (geometry compensation).
@@ -49,26 +49,24 @@ $$ F_m(x, i) \approx K_{mag} \frac{i(t)}{x(t)^n} $$
 
 ## 3. Equilibrium & Linearization
 Substituting the simplified model into dynamics:
-$$ m \ddot{x} = m g - K_{mag} \frac{i}{x^n} $$
+$m \ddot{x} = m g - K_{mag} \frac{i}{x^n}$
 
 ### 3.1 Equilibrium
-At operating point ( $\ddot{x} = 0$, $x = \bar{x}$ ), the bias current $\bar{i}$ is:
-$$ \bar{i} = \frac{m g \bar{x}^n}{K_{mag}} $$
+
+At operating point ($\ddot{x} = 0$, $x = \bar{x}$), the bias current $\bar{i}$ is:
+$\bar{i} = \frac{m g \bar{x}^n}{K_{mag}}$
 
 ### 3.2 Linearization (Small Signal)
 Taylor expansion around $(\bar{x}, \bar{i})$ yields the linear ODE:
-$$ m \ddot{\tilde{x}} = \left( n \frac{mg}{\bar{x}} \right) \tilde{x} - \left( \frac{mg}{\bar{i}} \right) \tilde{i} $$
+$m \ddot{\tilde{x}} = \left( n \frac{mg}{\bar{x}} \right) \tilde{x} - \left( \frac{mg}{\bar{i}} \right) \tilde{i}$
 
 Dividing by $m$:
-$$ \ddot{\tilde{x}} = \left( \frac{n g}{\bar{x}} \right) \tilde{x} - \left( \frac{g}{\bar{i}} \right) \tilde{i} $$
+$\ddot{\tilde{x}} = \left( \frac{n g}{\bar{x}} \right) \tilde{x} - \left( \frac{g}{\bar{i}} \right) \tilde{i}$
 
 ### 3.3 Transfer Function
 ### 3.3 Transfer Function
-Laplace transform ($G(s) = X(s)/I(s)$):
-
-$$ 
-s^2 X(s) - \frac{ng}{\bar{x}} X(s) = - \frac{g}{\bar{i}} I(s) \implies G(s) = \frac{- \frac{g}{\bar{i}}}{s^2 - \frac{ng}{\bar{x}}} 
-$$
+Laplace transform ( $G(s) = X(s)/I(s)$ ):
+$s^2 X(s) - \frac{ng}{\bar{x}} X(s) = - \frac{g}{\bar{i}} I(s) \implies G(s) = \frac{- \frac{g}{\bar{i}}}{s^2 - \frac{ng}{\bar{x}}}$
 
 **Stability:** Poles at $s = \pm \sqrt{\frac{ng}{\bar{x}}}$. One positive real pole $\to$ **Open-Loop Unstable**.
 
@@ -119,19 +117,19 @@ $$ m s^3 + (k_i K_d) s^2 + (k_i K_p - k_x) s + (k_i K_i) = 0 $$
 
 ### 5.2 Target Dynamics
 Target polynomial with bandwidth $\omega_c > \sqrt{k_x/m}$ and damping $\zeta \approx 0.707$:
-$$ P_{target}(s) = (s + p_{real}) (s^2 + 2\zeta\omega_c s + \omega_c^2) $$
+$P_{target}(s) = (s + p_{real}) (s^2 + 2\zeta\omega_c s + \omega_c^2)$
 
 ### 5.3 Analytical Gains
 Equating coefficients yields the tuning formulas:
 
 **Derivative ($K_d$):**
-$$ K_d = \frac{m \cdot (2\zeta\omega_c + p_{real})}{k_i} $$
+$K_d = \frac{m \cdot (2\zeta\omega_c + p_{real})}{k_i}$
 
 **Proportional ($K_p$):**
-$$ K_p = \frac{m (\omega_c^2 + 2\zeta\omega_c p_{real}) + k_x}{k_i} $$
+$K_p = \frac{m (\omega_c^2 + 2\zeta\omega_c p_{real}) + k_x}{k_i}$
 
 **Integral ($K_i$):**
-$$ K_i = \frac{m \cdot \omega_c^2 \cdot p_{real}}{k_i} $$
+$K_i = \frac{m \cdot \omega_c^2 \cdot p_{real}}{k_i}$
 
 ## References
 1.  Fuso, F. (2015). *Campo magnetico prodotto da un solenoide*. Dipartimento di Fisica, Università di Pisa. [Online PDF](https://osiris.df.unipi.it/~fuso/dida/solenoide.pdf)
