@@ -8,6 +8,7 @@
 
 Aether_HAL hal;
 bool running = false;
+bool maxMode = false;
 float pwm = 0.0f;
 unsigned long lastTimestamp = 0;
 bool increasing = true;
@@ -39,10 +40,17 @@ void loop() {
             hal.setCoilPower(0); 
             Serial.println("STOPPED"); 
         }
+
+        if(command == '2'){
+            running = true;
+            maxMode = true; 
+            pwm = 1.0f;
+        }
     }
 
     // 2. Execute Test Logic (50Hz Sampling Rate)
-    if (running && (millis() - lastTimestamp >= 20)) {
+
+    if (running && (millis() - lastTimestamp >= 20) && !maxMode) {
         lastTimestamp = millis();
         
         // Calculate PWM Ramp
@@ -75,5 +83,13 @@ void loop() {
             hal.setCoilPower(0);
             Serial.println("FINISHED");
         }
+    } else if (running && maxMode) {
+        // Max Power Mode
+        hal.setCoilPower(1.0f);
+        Serial.print(millis());
+        Serial.print(",");
+        Serial.print(100.0f, 2); // 100%
+        Serial.print(",");
+        Serial.println(hal.readSensorRaw());
     }
 }
