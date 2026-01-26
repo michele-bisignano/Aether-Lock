@@ -1,7 +1,7 @@
 ```
 Aether-Lock/
 ├── .gitignore                      
-├── LICENSE                         # MIT License
+├── LICENSE                         
 ├── README.md                       
 ├── project_config.json             # Centralized physics and control parameters
 │
