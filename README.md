@@ -5,6 +5,10 @@
 ![Method](https://img.shields.io/badge/method-Model--Based-orange)
 ![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)
 
+<div align="center">
+  <img src="Docs/Images/Aether-Lock_Logo.png" alt="Aether-Lock Logo" width="150">
+</div>
+
 <p align="center">
   <img src="Docs/Images/levitation_demo.gif" alt="Aether-Lock Levitating" width="600">
 </p>
