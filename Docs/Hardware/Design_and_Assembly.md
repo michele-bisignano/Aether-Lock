@@ -41,3 +41,6 @@ The firmware applies:
 1.  **Star Ground:** Connect all GND points (12V Supply, ESP32, MOSFET Source) to a single point on the breadboard to avoid ground loops.
 2.  **Heatsink:** The Solenoid can get warm. Ensure it is not fully enclosed in thermal insulators (like cotton/styrofoam) without airflow.
 3.  **Sensor Placement:** The SS49E must be glued exactly at the center of the coil face, with the branded side facing the magnet.
+
+![Circuit Assembly](../Images/Breadboard.jpeg)
+![Circuit Electromagnet](../Images/Electromagnet.jpeg)

@@ -3,43 +3,28 @@
 
 /**
  * @brief Efficient Moving Average Filter (Circular Buffer implementation).
- * 
- * Used to smooth out sensor noise before the PID loop.
- * Features O(1) time complexity: calculation time does not increase with filter size.
  */
 class MovingAverage {
 private:
-    float* buffer;      // Dynamic array to store history
-    const int size;     // Total size of the buffer (N samples)
-    int index;          // Current write position (head of the circular buffer)
-    float sum;          // Running sum of all elements in buffer
-    bool is_filled;     // Flag to handle the startup phase gracefully
+    float* buffer;      
+    int size;           
+    int index;          
+    float sum;          
+    bool is_filled;     
+    bool initialized;   
 
 public:
-    /**
-     * @brief Constructor. Allocates memory for the filter.
-     * @param size Number of samples to average (e.g., 4, 8, 10).
-     */
-    MovingAverage(int size);
-
-    /**
-     * @brief Destructor. Frees the allocated memory to prevent leaks.
-     * Important because we use 'new' in the constructor.
-     */
+    MovingAverage();
     ~MovingAverage();
 
     /**
-     * @brief Processes a new sample and returns the filtered value.
-     * 
-     * @param input The raw noisy value from the sensor.
-     * @return float The smoothed average value.
+     * @brief Initializes the filter and allocates memory.
+     * @param size Number of samples.
+     * @return true if memory allocation was successful, false otherwise.
      */
-    float process(float input);
+    bool begin(int size); // <--- CAMBIATO DA void A bool
 
-    /**
-     * @brief Resets the filter.
-     * Clears the buffer and resets the sum (e.g., on system startup).
-     */
+    float process(float input);
     void reset();
 };
 

@@ -30,10 +30,10 @@ PWM_max = 1023;
 
 
 %% Control System Targets & Initial Gains
-eq_current = 1800;
+eq_current = 1900;
 Ts = 1 / 5000;
-Kp_config = 0.0003;
-Ki_config = 0.0005;
-Kd_config = 0.015;
+Kp_config = 0.0025;
+Ki_config = 0.005;
+Kd_config = 0.00015;
 
 disp('✅ Aether-Lock Parameters Loaded Successfully');

@@ -5,6 +5,11 @@
 ![Method](https://img.shields.io/badge/method-Model--Based-orange)
 ![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)
 
+<p align="center">
+  <img src="Docs/Images/levitation_demo.gif" alt="Aether-Lock Levitating" width="600">
+</p>
+
+
 **Aether-Lock** is a high-precision, closed-loop electromagnetic suspension system designed with a **Firmware-First** and **Model-Based** engineering approach.
 It stabilizes an inherently unstable system (magnetic levitation) using a custom discrete PID controller running at 5kHz on an ESP32-S2.
 

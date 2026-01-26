@@ -50,6 +50,11 @@ float PID_Controller::compute(float setpoint, float measured_value)
     // Store current error for the next derivative calculation
     previous_error = error;
 
+    // Store debug values for telemetry
+    _debug_P = P;
+    _debug_I = I;
+    _debug_D = D;
+
     // 6. Compute Total Output
     float output = P + I + D;
 

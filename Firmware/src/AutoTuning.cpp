@@ -15,7 +15,7 @@
 // Objects
 Aether_HAL hal;
 PID_Controller pid(0.0, 0.0, 0.0, Config::Control::LOOP_PERIOD_S);
-MovingAverage filter(Config::Control::FILTER_SIZE);
+MovingAverage filter;
 
 // Tuning Variables
 bool tuningActive = false;
@@ -32,6 +32,7 @@ void setup() {
     Serial.begin(115200);
     hal.init();
     hal.setCoilPower(0.0f);
+    filter.begin(Config::Control::FILTER_SIZE);
     delay(1000);
     
     Serial.println("--- PID AUTO-TUNING (COMPENSATED) ---");

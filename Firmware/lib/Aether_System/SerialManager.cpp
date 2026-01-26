@@ -37,15 +37,19 @@ void SerialManager::streamTelemetry() {
         float pwm = fsm->getPWMDuty();
         float target = Config::Control::TARGET_ADC; 
 
-        Serial.print(">Raw:");     
-        Serial.print((int)dist);
-        
-        Serial.print(",Target:");   
-        Serial.print((int)target);
-        
-        Serial.print(",PWM:"); 
+        float valP = pid->getP();
+        float valI = pid->getI();
+        float valD = pid->getD();
 
-        Serial.println((int)(pwm * 4095)); // Scaled for graph visibility
+         Serial.print(">Raw:");      Serial.print((int)dist);
+        Serial.print(",Target:");   Serial.print((int)target);
+        
+        Serial.print(",PWM:");      Serial.print((int)(pwm * 4095));
+        
+        Serial.print(",P:");        Serial.print((int)(valP * 4095));
+        Serial.print(",I:");        Serial.print((int)(valI * 4095));
+        
+        Serial.print(",D:");        Serial.println((int)(valD * 4095)); 
     }
 }
 

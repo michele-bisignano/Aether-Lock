@@ -6,6 +6,11 @@ Aether-Lock/
 ├── project_config.json             # Centralized physics and control parameters
 │
 ├── Docs/                           # Documentation and design specifications
+│   ├── Images/
+│   │   ├── levitation_demo.gif     # gif of magnet levitation
+│   │   ├── Electromagnet.jpeg      # gif of magnet levitation
+│   │   └── Breadboard.jpeg         # Visual representation of the project structure (This file)
+|   |
 │   ├── Project_Structure/
 │   │   ├── BOM.md                  # Bill Of Materials
 │   │   └── repository_tree.md      # Visual representation of the project structure (This file)

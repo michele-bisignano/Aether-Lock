@@ -16,6 +16,11 @@ private:
     float Kd; // Derivative gain
     float Ts; // Sampling time [seconds]
 
+    // --- Debugging / Telemetry Variables ---
+    volatile float _debug_P;
+    volatile float _debug_I;
+    volatile float _debug_D;
+
     // --- Memory Variables (State) ---
     float previous_error; // Error at step (k-1) for derivative calculation
     float integral;       // Accumulated sum for integral term
@@ -55,6 +60,11 @@ public:
     void setKp(float kp);
     void setKi(float ki);
     void setKd(float kd);
+
+    // --- Getters for telemetry ---
+    float getP() const { return _debug_P; }
+    float getI() const { return _debug_I; }
+    float getD() const { return _debug_D; }
 };
 
 #endif
