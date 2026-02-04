@@ -22,7 +22,7 @@ public:
      * @param size Number of samples.
      * @return true if memory allocation was successful, false otherwise.
      */
-    bool begin(int size); // <--- CAMBIATO DA void A bool
+    bool begin(int size); 
 
     float process(float input);
     void reset();
